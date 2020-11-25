@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>MidTerm 2 Review (1) | Robert Hu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="CS61C Exams">
+    <meta name="description" content="Cache IntroductionPrinciple of Locality Example: Library Code, Stack, Array: Data are organized tightly together  Temporal Locality (locality in time)If a memory location is referenced then it will te">
+<meta name="keywords" content="CS61C Exams">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MidTerm 2 Review (1)">
+<meta property="og:url" content="http:&#x2F;&#x2F;blog.hubohan.me&#x2F;2019&#x2F;07&#x2F;23&#x2F;MidTerm-2-Review-1&#x2F;index.html">
+<meta property="og:site_name" content="Robert Hu">
+<meta property="og:description" content="Cache IntroductionPrinciple of Locality Example: Library Code, Stack, Array: Data are organized tightly together  Temporal Locality (locality in time)If a memory location is referenced then it will te">
+<meta property="og:locale" content="en">
+<meta property="og:image" content="http:&#x2F;&#x2F;blog.hubohan.me&#x2F;Users&#x2F;hubohan&#x2F;Library&#x2F;Application%20Support&#x2F;typora-user-images&#x2F;image-20190723221429306.png">
+<meta property="og:updated_time" content="2020-11-25T02:24:55.845Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http:&#x2F;&#x2F;blog.hubohan.me&#x2F;Users&#x2F;hubohan&#x2F;Library&#x2F;Application%20Support&#x2F;typora-user-images&#x2F;image-20190723221429306.png">
+    
+        <link rel="alternate" type="application/atom+xml" title="Robert Hu" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Bohan Hu</h5>
+          <a href="mailto:634206017@qq.com" target="_blank" rel="noopener" title="634206017@qq.com" class="mail">634206017@qq.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/bohan-hu" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">MidTerm 2 Review (1)</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">MidTerm 2 Review (1)</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-07-23T22:57:13.000Z" itemprop="datePublished" class="page-time">
+  2019-07-23
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Cache-Introduction"><span class="post-toc-number">1.</span> <span class="post-toc-text">Cache Introduction</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Principle-of-Locality"><span class="post-toc-number">1.1.</span> <span class="post-toc-text">Principle of Locality</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Temporal-Locality-locality-in-time"><span class="post-toc-number">1.1.1.</span> <span class="post-toc-text">Temporal Locality (locality in time)</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Spatial-Locality-locality-in-space"><span class="post-toc-number">1.1.2.</span> <span class="post-toc-text">Spatial Locality (locality in space)</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Cache-Management"><span class="post-toc-number">2.</span> <span class="post-toc-text">Cache Management</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Block-Replacement-Policy"><span class="post-toc-number">2.1.</span> <span class="post-toc-text">Block Replacement Policy</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Random-Replacement"><span class="post-toc-number">2.1.1.</span> <span class="post-toc-text">Random Replacement</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#LRU"><span class="post-toc-number">2.1.2.</span> <span class="post-toc-text">LRU</span></a></li></ol></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Cache-Implementation"><span class="post-toc-number">2.2.</span> <span class="post-toc-text">Cache Implementation</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Consistency-Between-Cache-and-Mem"><span class="post-toc-number">2.3.</span> <span class="post-toc-text">Consistency Between Cache and Mem</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Write-Hit"><span class="post-toc-number">2.3.1.</span> <span class="post-toc-text">Write Hit</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Read-Miss"><span class="post-toc-number">2.3.2.</span> <span class="post-toc-text">Read Miss</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Write-Miss"><span class="post-toc-number">2.3.3.</span> <span class="post-toc-text">Write Miss</span></a></li></ol></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Cache-Mapping"><span class="post-toc-number">3.</span> <span class="post-toc-text">Cache Mapping</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Direct-Mapped"><span class="post-toc-number">3.1.</span> <span class="post-toc-text">Direct-Mapped</span></a></li><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Set-Associative"><span class="post-toc-number">3.2.</span> <span class="post-toc-text">Set Associative</span></a></li></ol></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Cache-Performance"><span class="post-toc-number">4.</span> <span class="post-toc-text">Cache Performance</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-3"><a class="post-toc-link" href="#Source-of-Cache-Misses-3Cs"><span class="post-toc-number">4.1.</span> <span class="post-toc-text">Source of Cache Misses: 3Cs</span></a></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-MidTerm-2-Review-1"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">MidTerm 2 Review (1)</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-07-23 22:57:13" datetime="2019-07-23T22:57:13.000Z"  itemprop="datePublished">2019-07-23</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="Cache-Introduction"><a href="#Cache-Introduction" class="headerlink" title="Cache Introduction"></a>Cache Introduction</h2><h3 id="Principle-of-Locality"><a href="#Principle-of-Locality" class="headerlink" title="Principle of Locality"></a>Principle of Locality</h3><ul>
+<li>Example: Library</li>
+<li>Code, Stack, Array: Data are organized tightly together</li>
+</ul>
+<h4 id="Temporal-Locality-locality-in-time"><a href="#Temporal-Locality-locality-in-time" class="headerlink" title="Temporal Locality (locality in time)"></a>Temporal Locality (locality in time)</h4><p>If a memory location is referenced then it will tend to be referenced again soon</p>
+<h4 id="Spatial-Locality-locality-in-space"><a href="#Spatial-Locality-locality-in-space" class="headerlink" title="Spatial Locality (locality in space)"></a>Spatial Locality (locality in space)</h4><p>If a memory location is referenced, the locations with nearby addresses will tend to be referenced soon</p>
+<h2 id="Cache-Management"><a href="#Cache-Management" class="headerlink" title="Cache Management"></a>Cache Management</h2><ul>
+<li>TIO =&gt; TAG / INDEX / OFFSET</li>
+<li>Valid Bit</li>
+<li>Cache Params: <strong>Block Size(K)</strong> and <strong>Cache Size(C)</strong></li>
+<li>Index may be block number, or group number(in associative ways)</li>
+</ul>
+<h3 id="Block-Replacement-Policy"><a href="#Block-Replacement-Policy" class="headerlink" title="Block Replacement Policy"></a>Block Replacement Policy</h3><h4 id="Random-Replacement"><a href="#Random-Replacement" class="headerlink" title="Random Replacement"></a>Random Replacement</h4><h4 id="LRU"><a href="#LRU" class="headerlink" title="LRU"></a>LRU</h4><p>Least Recently Used</p>
+<h3 id="Cache-Implementation"><a href="#Cache-Implementation" class="headerlink" title="Cache Implementation"></a>Cache Implementation</h3><ul>
+<li>Actual Data Block</li>
+<li>Tag Bits</li>
+<li>Valid Bit</li>
+<li>LRU Bits: 00 - Used Last 11 - Ready to remove</li>
+</ul>
+<h3 id="Consistency-Between-Cache-and-Mem"><a href="#Consistency-Between-Cache-and-Mem" class="headerlink" title="Consistency Between Cache and Mem"></a>Consistency Between Cache and Mem</h3><h4 id="Write-Hit"><a href="#Write-Hit" class="headerlink" title="Write Hit"></a>Write Hit</h4><ul>
+<li><p>Write Through:</p>
+<ul>
+<li>Write data to both mem and cache ( slower ) </li>
+<li>Include a write buffer that will update the mem parallel</li>
+</ul>
+</li>
+<li><p>Write Back:</p>
+<ul>
+<li>if the block is in cache, update it only in cache, and mark it </li>
+<li>use a dirty bit to record whether it is modified</li>
+</ul>
+</li>
+</ul>
+<h4 id="Read-Miss"><a href="#Read-Miss" class="headerlink" title="Read Miss"></a>Read Miss</h4><ul>
+<li>fectch data and stall the pipeline, then recover </li>
+</ul>
+<h4 id="Write-Miss"><a href="#Write-Miss" class="headerlink" title="Write Miss"></a>Write Miss</h4><ul>
+<li><p>Always have to update the block in the memory</p>
+</li>
+<li><p><em>Update the cache or not?</em></p>
+</li>
+<li><p>Write Allocate</p>
+<ul>
+<li>Bring a block into cache after a read miss</li>
+<li>Always pair with <strong>Write Back</strong></li>
+<li>E.g. Accessing the same memory address many times -&gt; cache it</li>
+</ul>
+</li>
+<li><p>No Write Allocate </p>
+<ul>
+<li>Always pair with <strong>Write Through</strong></li>
+<li>E.g. Random writes ( don’t care about the caching )</li>
+</ul>
+</li>
+</ul>
+<h2 id="Cache-Mapping"><a href="#Cache-Mapping" class="headerlink" title="Cache Mapping"></a>Cache Mapping</h2><h3 id="Direct-Mapped"><a href="#Direct-Mapped" class="headerlink" title="Direct-Mapped"></a>Direct-Mapped</h3><ul>
+<li><p>Each memory block is mapped excatly to one slot in the cache </p>
+</li>
+<li><p>the Hash function is <strong>deterministic</strong></p>
+</li>
+<li><p>Just need to check <code>one slot</code></p>
+</li>
+<li><p>Faster!</p>
+</li>
+<li><p><strong>But access bahaviour might leave some slot blank</strong></p>
+<ul>
+<li>Byte X, Byte X + Cache Size, Byte X + n * Cache Size will be mapped into the same block</li>
+<li>Will cause conflicts</li>
+</ul>
+</li>
+<li><p><code>TIO</code> Address format</p>
+<ul>
+<li><code>T</code> - Tag </li>
+<li><code>I</code>: Index - determined by <code>number of blocks</code></li>
+<li><code>O</code>: offset - determined by <code>block size</code></li>
+</ul>
+</li>
+<li><p><strong>the WORST CASE of DM</strong></p>
+<ul>
+<li>consider that the cache size(C) = 16</li>
+<li>access 0 -&gt; 16 -&gt; 0 -&gt; 32 -&gt; n*16</li>
+<li>Only use one slot and cause every access MISS</li>
+</ul>
+</li>
+</ul>
+<h3 id="Set-Associative"><a href="#Set-Associative" class="headerlink" title="Set Associative"></a>Set Associative</h3><ul>
+<li><p>Divide cache into sets, each of which consists of N blocks </p>
+</li>
+<li><p>N is the <strong>associativity</strong></p>
+</li>
+<li><p>the Index refers to the group num</p>
+</li>
+<li><p>$$ I = log_2 (C/KN)$$</p>
+<p><img src="/Users/hubohan/Library/Application%20Support/typora-user-images/image-20190723221429306.png" alt="image-20190723221429306"></p>
+</li>
+<li><p><strong>the WORST CASE of SA</strong></p>
+<ul>
+<li>with LRU: repeat pattern that at least N+1 map into the same set</li>
+<li>E.g N = 2, use the pattern 0, 8, 16</li>
+<li>*<em>Question: which block will be mapped into the same group? *</em></li>
+</ul>
+</li>
+</ul>
+<h2 id="Cache-Performance"><a href="#Cache-Performance" class="headerlink" title="Cache Performance"></a>Cache Performance</h2><ul>
+<li>Miss Rate and Miss Penalty</li>
+<li>Average Memeory Access Time: AMAT </li>
+<li><strong>AMAT  = HIT Time + Miss Rate * Miss Penalty</strong></li>
+<li>Increase in hit rate ( cache size ) will increase the hit time, which will overcome the improvement for hit rate, decrease the performance </li>
+</ul>
+<h3 id="Source-of-Cache-Misses-3Cs"><a href="#Source-of-Cache-Misses-3Cs" class="headerlink" title="Source of Cache Misses: 3Cs"></a>Source of Cache Misses: 3Cs</h3><table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Explain</th>
+<th>Solution</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Compulsory</td>
+<td>the first time to reference must cause miss</td>
+<td>Increase the block size</td>
+<td>Increase MP; too large block <strong>increase MR</strong></td>
+</tr>
+<tr>
+<td>Capacity</td>
+<td>can’t hold all blocks in a set</td>
+<td>Increase the cache size</td>
+<td>Increase the HT</td>
+</tr>
+<tr>
+<td>Conflict</td>
+<td>different address mapped into the same location ( Lack of associativity )</td>
+<td>Increase associativity</td>
+<td>Increase the HT</td>
+</tr>
+</tbody></table>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2020-11-25T02:24:55.845Z" itemprop="dateUpdated">2020-11-25 02:24:55</time>
+</span><br>
+
+
+        
+        这里可以写作者留言，标签和 hexo 中所有变量及辅助函数等均可调用，示例：<a href="/2019/07/23/MidTerm-2-Review-1/" target="_blank" rel="external">http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="http://blog.hubohan.me">
+            <img src="/img/avatar.jpg" alt="Bohan Hu">
+            Bohan Hu
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" target="_blank" rel="noopener" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/CS61C-Exams/" rel="tag">CS61C Exams</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/&title=《MidTerm 2 Review (1)》 — Robert Hu&pic=http://blog.hubohan.me/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" target="_blank" rel="noopener" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/&title=《MidTerm 2 Review (1)》 — Robert Hu&source=Computer Architecture Enthusiastic" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MidTerm 2 Review (1)》 — Robert Hu&url=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/&via=http://blog.hubohan.me" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" target="_blank" rel="noopener" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/07/24/Midterm-2-Review-2/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">Midterm 2 Review(2)</h4>
+      </a>
+    </div>
+  
+
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;" target="_blank" rel="noopener"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>Bohan Hu &copy; 2015 - 2020</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" target="_blank" rel="noopener" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/&title=《MidTerm 2 Review (1)》 — Robert Hu&pic=http://blog.hubohan.me/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" target="_blank" rel="noopener" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/&title=《MidTerm 2 Review (1)》 — Robert Hu&source=Computer Architecture Enthusiastic" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《MidTerm 2 Review (1)》 — Robert Hu&url=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/&via=http://blog.hubohan.me" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;" target="_blank" rel="noopener"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=http://blog.hubohan.me/2019/07/23/MidTerm-2-Review-1/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

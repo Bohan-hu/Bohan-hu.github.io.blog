@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+
+    
+
+    
+
+
+
+    <meta charset="utf-8">
+    
+    
+    
+    
+    <title>Crosscutting Issues | Robert Hu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    
+    <meta name="theme-color" content="#3F51B5">
+    
+    
+    <meta name="keywords" content="Architecture">
+    <meta name="description" content="RISC Instruction Sets and Efficiency of Pipelining Suppose we need to add two values in memory and store them back. In some sophisticated ISA this will only take 1 instruction. In RISC, it will take 2">
+<meta name="keywords" content="Architecture">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Crosscutting Issues">
+<meta property="og:url" content="http:&#x2F;&#x2F;blog.hubohan.me&#x2F;2019&#x2F;08&#x2F;24&#x2F;Crosscutting-Issues&#x2F;index.html">
+<meta property="og:site_name" content="Robert Hu">
+<meta property="og:description" content="RISC Instruction Sets and Efficiency of Pipelining Suppose we need to add two values in memory and store them back. In some sophisticated ISA this will only take 1 instruction. In RISC, it will take 2">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2020-11-25T02:24:55.845Z">
+<meta name="twitter:card" content="summary">
+    
+        <link rel="alternate" type="application/atom+xml" title="Robert Hu" href="/atom.xml">
+    
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//unpkg.com/hexo-theme-material-indigo@latest/css/style.css">
+    <script>window.lazyScripts=[]</script>
+
+    <!-- custom head -->
+    
+
+</head>
+
+<body>
+    <div id="loading" class="active"></div>
+
+    <aside id="menu" class="hide" >
+  <div class="inner flex-row-vertical">
+    <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light" id="menu-off">
+        <i class="icon icon-lg icon-close"></i>
+    </a>
+    <div class="brand-wrap" style="background-image:url(/img/brand.jpg)">
+      <div class="brand">
+        <a href="/" class="avatar waves-effect waves-circle waves-light">
+          <img src="/img/avatar.jpg">
+        </a>
+        <hgroup class="introduce">
+          <h5 class="nickname">Bohan Hu</h5>
+          <a href="mailto:634206017@qq.com" target="_blank" rel="noopener" title="634206017@qq.com" class="mail">634206017@qq.com</a>
+        </hgroup>
+      </div>
+    </div>
+    <div class="scroll-wrap flex-col">
+      <ul class="nav">
+        
+            <li class="waves-block waves-effect">
+              <a href="/"  >
+                <i class="icon icon-lg icon-home"></i>
+                主页
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/archives"  >
+                <i class="icon icon-lg icon-archives"></i>
+                Archives
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="/tags"  >
+                <i class="icon icon-lg icon-tags"></i>
+                Tags
+              </a>
+            </li>
+        
+            <li class="waves-block waves-effect">
+              <a href="https://github.com/bohan-hu" target="_blank" >
+                <i class="icon icon-lg icon-github"></i>
+                Github
+              </a>
+            </li>
+        
+      </ul>
+    </div>
+  </div>
+</aside>
+
+    <main id="main">
+        <header class="top-header" id="header">
+    <div class="flex-row">
+        <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light on" id="menu-toggle">
+          <i class="icon icon-lg icon-navicon"></i>
+        </a>
+        <div class="flex-col header-title ellipsis">Crosscutting Issues</div>
+        
+        <div class="search-wrap" id="search-wrap">
+            <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light" id="back">
+                <i class="icon icon-lg icon-chevron-left"></i>
+            </a>
+            <input type="text" id="key" class="search-input" autocomplete="off" placeholder="Search">
+            <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light" id="search">
+                <i class="icon icon-lg icon-search"></i>
+            </a>
+        </div>
+        
+        
+        <a href="javascript:;" target="_blank" rel="noopener" class="header-icon waves-effect waves-circle waves-light" id="menuShare">
+            <i class="icon icon-lg icon-share-alt"></i>
+        </a>
+        
+    </div>
+</header>
+<header class="content-header post-header">
+
+    <div class="container fade-scale">
+        <h1 class="title">Crosscutting Issues</h1>
+        <h5 class="subtitle">
+            
+                <time datetime="2019-08-24T22:57:13.000Z" itemprop="datePublished" class="page-time">
+  2019-08-24
+</time>
+
+
+            
+        </h5>
+    </div>
+
+    
+
+
+</header>
+
+
+<div class="container body-wrap">
+    
+    <aside class="post-widget">
+        <nav class="post-toc-wrap post-toc-shrink" id="post-toc">
+            <h4>TOC</h4>
+            <ol class="post-toc"><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#RISC-Instruction-Sets-and-Efficiency-of-Pipelining"><span class="post-toc-number">1.</span> <span class="post-toc-text">RISC Instruction Sets and Efficiency of Pipelining</span></a></li><li class="post-toc-item post-toc-level-2"><a class="post-toc-link" href="#Dynamically-Scheduled-Pipelines"><span class="post-toc-number">2.</span> <span class="post-toc-text">Dynamically Scheduled Pipelines</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Dynamic-Scheduling-with-a-Scoreboard"><span class="post-toc-number">2.0.1.</span> <span class="post-toc-text">Dynamic Scheduling with a Scoreboard</span></a><ol class="post-toc-child"><li class="post-toc-item post-toc-level-5"><a class="post-toc-link" href="#4-Steps-in-Execution"><span class="post-toc-number">2.0.1.1.</span> <span class="post-toc-text">4 Steps in Execution</span></a></li></ol></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#Scoreboard-Data-Structure"><span class="post-toc-number">2.0.2.</span> <span class="post-toc-text">Scoreboard Data Structure</span></a></li><li class="post-toc-item post-toc-level-4"><a class="post-toc-link" href="#3-Parts-of-the-Scoreboard"><span class="post-toc-number">2.0.3.</span> <span class="post-toc-text">3 Parts of the Scoreboard</span></a></li></ol></li></ol></li></ol>
+        </nav>
+    </aside>
+
+
+<article id="post-Crosscutting-Issues"
+  class="post-article article-type-post fade" itemprop="blogPost">
+
+    <div class="post-card">
+        <h1 class="post-card-title">Crosscutting Issues</h1>
+        <div class="post-meta">
+            <time class="post-time" title="2019-08-24 22:57:13" datetime="2019-08-24T22:57:13.000Z"  itemprop="datePublished">2019-08-24</time>
+
+            
+
+
+            
+<span id="busuanzi_container_page_pv" title="文章总阅读量" style='display:none'>
+    <i class="icon icon-eye icon-pr"></i><span id="busuanzi_value_page_pv"></span>
+</span>
+
+
+        </div>
+        <div class="post-content" id="post-content" itemprop="postContent">
+            <h2 id="RISC-Instruction-Sets-and-Efficiency-of-Pipelining"><a href="#RISC-Instruction-Sets-and-Efficiency-of-Pipelining" class="headerlink" title="RISC Instruction Sets and Efficiency of Pipelining"></a>RISC Instruction Sets and Efficiency of Pipelining</h2><ul>
+<li><p>Suppose we need to add two values in memory and store them back.</p>
+<p>In some sophisticated ISA this will only take 1 instruction.</p>
+<p>In RISC, it will take 2 loads, an add, and a store.</p>
+<p><strong>These instructions cannot be scheduled sequentially without intervening stalls</strong></p>
+</li>
+<li><p>Since in RISC instructions, the individual operations are seperate and can be individually scheduled by compiler or hardwares.</p>
+</li>
+</ul>
+<h2 id="Dynamically-Scheduled-Pipelines"><a href="#Dynamically-Scheduled-Pipelines" class="headerlink" title="Dynamically Scheduled Pipelines"></a>Dynamically Scheduled Pipelines</h2><ul>
+<li>Simple pipelines fetch an instruction and issue it when there’s no data dependency between an instruction already in the pipeline and the instruction to be issued that cannot be hidden by bypassing or forwarding.</li>
+<li>Forwarding increase the latency of the circuit when there’s not a hazard</li>
+<li>Compiler can schedule the instructions to avoid the hazard ( called compiler or static scheduling )</li>
+<li>All the techniques discussed so far use in-order issue. <ul>
+<li>Check the dependency in ID</li>
+<li>If there’s a hazard, the pipeline will stall <strong>even if there are later instructions that are independent</strong>.</li>
+</ul>
+</li>
+<li>out-of-order execution: seperate ID into 2 stages<ul>
+<li>Issue</li>
+<li>Read Operands</li>
+</ul>
+</li>
+</ul>
+<h4 id="Dynamic-Scheduling-with-a-Scoreboard"><a href="#Dynamic-Scheduling-with-a-Scoreboard" class="headerlink" title="Dynamic Scheduling with a Scoreboard"></a>Dynamic Scheduling with a Scoreboard</h4><ul>
+<li><p>All instruction pass through the issue stage in order</p>
+</li>
+<li><p>The can be <strong>stalled</strong> or <strong>bypass each other</strong> in the <strong>read operands</strong> stage</p>
+</li>
+<li><p>Scoreboarding: allowing instructiosn to execute out of order when there are sufficient resources and no data dependences.</p>
+</li>
+<li><p>The possible WAR hazards</p>
+</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">DIV.D F0, F2, F4</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">ADD.D F10, F0, F8</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">SUB.D F8, F8, F14</span></pre></td></tr></table></figure>
+
+<ul>
+<li>Antidependence between <strong>ADD.D and SUB.D</strong> </li>
+<li>SUB.D execute before ADD.D, then the source of ADD.D is destroyed.</li>
+<li>Likewise, WAW hazards will occur if the dest of SUB.D is F10</li>
+</ul>
+<ul>
+<li>The goal of scoreboard is to maintain an execution rate of 1 IPC by execute an instruction as early as possible</li>
+<li><strong>If one instruction is stalled, the other can be issued when there’s no dependence</strong></li>
+</ul>
+<hr>
+<p>The detection and resolution of hazard are centralized in the scoreboard</p>
+<ul>
+<li>Every instruction goes into scoreboard, where the data dependence is recorded. </li>
+<li>The scoreboard will decide when the instruction can read operand and issue. </li>
+<li>The scoreboard will monitor the exection of every instructions.</li>
+<li>The scoreboard can decide whether an instruction can write to destination.</li>
+</ul>
+<hr>
+<h5 id="4-Steps-in-Execution"><a href="#4-Steps-in-Execution" class="headerlink" title="4 Steps in Execution"></a>4 Steps in Execution</h5><p>These 4 following steps will replace ID, EX and WB</p>
+<ol>
+<li><p>Issue</p>
+<p><strong>a functional unit for the instruction is free and no other active instruction has the same destination</strong></p>
+<p>When it is stalled, the instruction buffer will be filled.</p>
+</li>
+<li><p>Read Operands</p>
+<p>a source operand is available if no earlier issued active instruction is going to write it</p>
+<p>This step, combined with issue step, completes the function of <strong>ID step</strong> in simple MIPS pipeline.</p>
+</li>
+<li><p>Execution</p>
+</li>
+<li><p>Write Back</p>
+<p>check the WAR hazard     </p>
+<ul>
+<li><p>There is an instruction that has not read its operands that precedes the completing instruction( the instruction to be commit ) <strong>AND</strong></p>
+</li>
+<li><p>one of the operands is the same register as the result of the completing instruction</p>
+</li>
+<li><p><strong>It might be hard to distinguish the WAR and RAW</strong></p>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<ul>
+<li>Scoreboard does not take advantage of forwarding because the operands are read only when operands are available</li>
+<li>The penalty is not as large as we initially think</li>
+<li>There’s a limited number of source operand bus and result bus of register file so the scoreboard must guarantee the instruction in step 2 and 4 does not exceed the number of buses available.</li>
+</ul>
+<h4 id="Scoreboard-Data-Structure"><a href="#Scoreboard-Data-Structure" class="headerlink" title="Scoreboard Data Structure"></a>Scoreboard Data Structure</h4><ul>
+<li><p>Code Snippet</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span></pre></td><td class="code"><pre><span class="line">L.D		F6, 34(R2)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">2</span></pre></td><td class="code"><pre><span class="line">L.D		F2, 45(R3)</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">3</span></pre></td><td class="code"><pre><span class="line">MUL.D	F0, F2, F4</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">4</span></pre></td><td class="code"><pre><span class="line">SUB.D	F8, F6, F2</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">5</span></pre></td><td class="code"><pre><span class="line">DIV.D F10, F0, F6</span></pre></td></tr><tr><td class="gutter"><pre><span class="line">6</span></pre></td><td class="code"><pre><span class="line">ADD.D F6, F8, F2</span></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<h4 id="3-Parts-of-the-Scoreboard"><a href="#3-Parts-of-the-Scoreboard" class="headerlink" title="3 Parts of the Scoreboard"></a>3 Parts of the Scoreboard</h4><ol>
+<li><em>Instruction Status</em> : which step the <strong>instruction is in</strong></li>
+<li><em>Functional unit status</em> : the state of <strong>functional unit</strong><ul>
+<li>Busy</li>
+<li>Op</li>
+<li>Fi - Destination</li>
+<li>Fj, Fk - Source</li>
+<li>Qj, Qk - Functional Units producing source register Fj, Fk</li>
+<li>Rj, Rk - Flags indicating when Fj, Fk are ready and not yet read</li>
+</ul>
+</li>
+<li><em>Register result status</em> : which functional unit will write each <strong>register</strong>.</li>
+</ol>
+
+        </div>
+
+        <blockquote class="post-copyright">
+    
+    <div class="content">
+        
+<span class="post-time">
+    Last updated: <time datetime="2020-11-25T02:24:55.845Z" itemprop="dateUpdated">2020-11-25 02:24:55</time>
+</span><br>
+
+
+        
+        这里可以写作者留言，标签和 hexo 中所有变量及辅助函数等均可调用，示例：<a href="/2019/08/24/Crosscutting-Issues/" target="_blank" rel="external">http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/</a>
+        
+    </div>
+    
+    <footer>
+        <a href="http://blog.hubohan.me">
+            <img src="/img/avatar.jpg" alt="Bohan Hu">
+            Bohan Hu
+        </a>
+    </footer>
+</blockquote>
+
+        
+<div class="page-reward">
+    <a id="rewardBtn" href="javascript:;" target="_blank" rel="noopener" class="page-reward-btn waves-effect waves-circle waves-light">赏</a>
+</div>
+
+
+
+        <div class="post-footer">
+            
+	<ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Architecture/" rel="tag">Architecture</a></li></ul>
+
+
+            
+<div class="page-share-wrap">
+    
+
+<div class="page-share" id="pageShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/&title=《Crosscutting Issues》 — Robert Hu&pic=http://blog.hubohan.me/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" target="_blank" rel="noopener" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/&title=《Crosscutting Issues》 — Robert Hu&source=Computer Architecture Enthusiastic" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Crosscutting Issues》 — Robert Hu&url=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/&via=http://blog.hubohan.me" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+
+    <a href="javascript:;" target="_blank" rel="noopener" id="shareFab" class="page-share-fab waves-effect waves-circle">
+        <i class="icon icon-share-alt icon-lg"></i>
+    </a>
+</div>
+
+
+
+        </div>
+    </div>
+
+    
+<nav class="post-nav flex-row flex-justify-between">
+  
+    <div class="waves-block waves-effect prev">
+      <a href="/2019/09/24/Register_rename/" id="post-prev" class="post-nav-link">
+        <div class="tips"><i class="icon icon-angle-left icon-lg icon-pr"></i> Prev</div>
+        <h4 class="title">几种寄存器重命名技术</h4>
+      </a>
+    </div>
+  
+
+  
+    <div class="waves-block waves-effect next">
+      <a href="/2019/08/24/MIPS%E6%B5%81%E6%B0%B4%E7%BA%BF%E6%89%A9%E5%B1%95%EF%BC%9A%E5%A4%9A%E5%91%A8%E6%9C%9F%E6%93%8D%E4%BD%9C/" id="post-next" class="post-nav-link">
+        <div class="tips">Next <i class="icon icon-angle-right icon-lg icon-pl"></i></div>
+        <h4 class="title">MIPS流水线扩展：多周期操作</h4>
+      </a>
+    </div>
+  
+</nav>
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</article>
+
+<div id="reward" class="page-modal reward-lay">
+    <a class="close" href="javascript:;" target="_blank" rel="noopener"><i class="icon icon-close"></i></a>
+    <h3 class="reward-title">
+        <i class="icon icon-quote-left"></i>
+        谢谢大爷~
+        <i class="icon icon-quote-right"></i>
+    </h3>
+    <div class="reward-content">
+        
+        <div class="reward-code">
+            <img id="rewardCode" src="/img/wechat.jpg" alt="打赏二维码">
+        </div>
+        
+        <label class="reward-toggle">
+            <input id="rewardToggle" type="checkbox" class="reward-toggle-check"
+                data-wechat="/img/wechat.jpg" data-alipay="/img/alipay.jpg">
+            <div class="reward-toggle-ctrol">
+                <span class="reward-toggle-item wechat">微信</span>
+                <span class="reward-toggle-label"></span>
+                <span class="reward-toggle-item alipay">支付宝</span>
+            </div>
+        </label>
+        
+    </div>
+</div>
+
+
+
+</div>
+
+        <footer class="footer">
+    <div class="top">
+        
+<p>
+    <span id="busuanzi_container_site_uv" style='display:none'>
+        站点总访客数：<span id="busuanzi_value_site_uv"></span>
+    </span>
+    <span id="busuanzi_container_site_pv" style='display:none'>
+        站点总访问量：<span id="busuanzi_value_site_pv"></span>
+    </span>
+</p>
+
+
+        <p>
+            
+                <span><a href="/atom.xml" target="_blank" class="rss" title="rss"><i class="icon icon-lg icon-rss"></i></a></span>
+            
+            <span>This blog is licensed under a <a rel="license noopener" href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0 International License</a>.</span>
+        </p>
+    </div>
+    <div class="bottom">
+        <p><span>Bohan Hu &copy; 2015 - 2020</span>
+            <span>
+                
+                Power by <a href="http://hexo.io/" target="_blank">Hexo</a> Theme <a href="https://github.com/yscoder/hexo-theme-indigo" target="_blank">indigo</a>
+            </span>
+        </p>
+    </div>
+</footer>
+
+    </main>
+    <div class="mask" id="mask"></div>
+<a href="javascript:;" target="_blank" rel="noopener" id="gotop" class="waves-effect waves-circle waves-light"><span class="icon icon-lg icon-chevron-up"></span></a>
+
+
+
+<div class="global-share" id="globalShare">
+    <ul class="reset share-icons">
+      <li>
+        <a class="weibo share-sns" target="_blank" href="http://service.weibo.com/share/share.php?url=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/&title=《Crosscutting Issues》 — Robert Hu&pic=http://blog.hubohan.me/img/avatar.jpg" data-title="微博">
+          <i class="icon icon-weibo"></i>
+        </a>
+      </li>
+      <li>
+        <a class="weixin share-sns wxFab" href="javascript:;" target="_blank" rel="noopener" data-title="微信">
+          <i class="icon icon-weixin"></i>
+        </a>
+      </li>
+      <li>
+        <a class="qq share-sns" target="_blank" href="http://connect.qq.com/widget/shareqq/index.html?url=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/&title=《Crosscutting Issues》 — Robert Hu&source=Computer Architecture Enthusiastic" data-title=" QQ">
+          <i class="icon icon-qq"></i>
+        </a>
+      </li>
+      <li>
+        <a class="facebook share-sns" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/" data-title=" Facebook">
+          <i class="icon icon-facebook"></i>
+        </a>
+      </li>
+      <li>
+        <a class="twitter share-sns" target="_blank" href="https://twitter.com/intent/tweet?text=《Crosscutting Issues》 — Robert Hu&url=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/&via=http://blog.hubohan.me" data-title=" Twitter">
+          <i class="icon icon-twitter"></i>
+        </a>
+      </li>
+      <li>
+        <a class="google share-sns" target="_blank" href="https://plus.google.com/share?url=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/" data-title=" Google+">
+          <i class="icon icon-google-plus"></i>
+        </a>
+      </li>
+    </ul>
+ </div>
+
+
+<div class="page-modal wx-share" id="wxShare">
+    <a class="close" href="javascript:;" target="_blank" rel="noopener"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <img src="//api.qrserver.com/v1/create-qr-code/?data=http://blog.hubohan.me/2019/08/24/Crosscutting-Issues/" alt="微信分享二维码">
+</div>
+
+
+
+
+    <script src="//cdn.bootcss.com/node-waves/0.7.4/waves.min.js"></script>
+<script>
+var BLOG = { ROOT: '/', SHARE: true, REWARD: true };
+
+
+</script>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/main.min.js"></script>
+
+
+<div class="search-panel" id="search-panel">
+    <ul class="search-result" id="search-result"></ul>
+</div>
+<template id="search-tpl">
+<li class="item">
+    <a href="{path}" class="waves-block waves-effect">
+        <div class="title ellipsis" title="{title}">{title}</div>
+        <div class="flex-row flex-middle">
+            <div class="tags ellipsis">
+                {tags}
+            </div>
+            <time class="flex-col time">{date}</time>
+        </div>
+    </a>
+</li>
+</template>
+
+<script src="//unpkg.com/hexo-theme-material-indigo@latest/js/search.min.js" async></script>
+
+
+
+
+
+
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
