@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hubohan.space","root":"/","scheme":"Pisces","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
+  </script>
+
+  <meta name="description" content="Chisel提供了大量的标准接口，并且可以为我们提供可复用的硬件模块。 Decoupled: 标准Ready-Valid接口DecoupledIO是Chisel提供的一个标准接口，它提供了一个用于数据传输的Ready-Valid界面。  发送方（数据源）：控制bits和valid 接收方：控制ready，当其准备好接收数据的时候，拉高ready  这个接口提供了一个双向流控机制，也可以做到接收方反">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chisel学习笔记（八）：Chisel标准库实例">
+<meta property="og:url" content="http://hubohan.space/2020/08/25/Chisel_Note_8/index.html">
+<meta property="og:site_name" content="Hu&#39;s Blog">
+<meta property="og:description" content="Chisel提供了大量的标准接口，并且可以为我们提供可复用的硬件模块。 Decoupled: 标准Ready-Valid接口DecoupledIO是Chisel提供的一个标准接口，它提供了一个用于数据传输的Ready-Valid界面。  发送方（数据源）：控制bits和valid 接收方：控制ready，当其准备好接收数据的时候，拉高ready  这个接口提供了一个双向流控机制，也可以做到接收方反">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2020-08-25T05:00:00.000Z">
+<meta property="article:modified_time" content="2020-12-07T03:08:44.471Z">
+<meta property="article:author" content="胡博涵">
+<meta property="article:tag" content="Chisel">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://hubohan.space/2020/08/25/Chisel_Note_8/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Chisel学习笔记（八）：Chisel标准库实例 | Hu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <main class="main">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Hu's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Who's blog?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Decoupled-%E6%A0%87%E5%87%86Ready-Valid%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.</span> <span class="nav-text">Decoupled: 标准Ready-Valid接口</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%EF%BC%9A%E9%98%9F%E5%88%97"><span class="nav-number">1.1.</span> <span class="nav-text">实例：队列</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%EF%BC%9A%E4%BB%B2%E8%A3%81%E5%99%A8"><span class="nav-number">1.2.</span> <span class="nav-text">实例：仲裁器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">其他常用函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%8D%E6%93%8D%E4%BD%9C"><span class="nav-number">2.1.</span> <span class="nav-text">位操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#PopCount"><span class="nav-number">2.1.1.</span> <span class="nav-text">PopCount</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Reverse"><span class="nav-number">2.1.2.</span> <span class="nav-text">Reverse</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">2.2.</span> <span class="nav-text">计数器</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">胡博涵</p>
+  <div class="site-description" itemprop="description">CS Undergraduate at Harbin Institute of Technology, Shenzhen</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Bohan-Hu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Bohan-Hu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubohancser@gmail.com" title="E-Mail → mailto:hubohancser@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </header>
+
+      
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+      <div class="main-inner">
+        
+
+        <div class="content post posts-expand">
+          
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/25/Chisel_Note_8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chisel学习笔记（八）：Chisel标准库实例
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-25 13:00:00" itemprop="dateCreated datePublished" datetime="2020-08-25T13:00:00+08:00">2020-08-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>Chisel提供了大量的标准接口，并且可以为我们提供可复用的硬件模块。</p>
+<h2 id="Decoupled-标准Ready-Valid接口"><a href="#Decoupled-标准Ready-Valid接口" class="headerlink" title="Decoupled: 标准Ready-Valid接口"></a>Decoupled: 标准Ready-Valid接口</h2><p><code>DecoupledIO</code>是Chisel提供的一个标准接口，它提供了一个用于数据传输的Ready-Valid界面。</p>
+<ul>
+<li>发送方（数据源）：控制<code>bits</code>和<code>valid</code></li>
+<li>接收方：控制<code>ready</code>，当其准备好接收数据的时候，拉高<code>ready</code></li>
+</ul>
+<p>这个接口提供了一个双向流控机制，也可以做到接收方反压发送方的效果。</p>
+<p>注意：<code>ready</code>和<code>valid</code>信号不应该组合地依赖于对方，否则会导致组合逻辑环路。<code>ready</code>仅仅应当依赖于接收方是否准备好接收数据，<code>valid</code>应当仅仅依赖于发送方是否已经准备好数据。当传输完成后，<code>ready</code>和<code>valid</code>信号才允许变化。</p>
+<p>Chisel提供了一个<code>DecoupledIO</code>接口。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> myChiselData = <span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)</span><br><span class="line"><span class="keyword">val</span> myDecoupled = <span class="type">Decoupled</span>(myChiselData)</span><br></pre></td></tr></table></figure>
+
+<h3 id="实例：队列"><a href="#实例：队列" class="headerlink" title="实例：队列"></a>实例：队列</h3><p>Chisel提供了队列，一个标准的Ready-Valid接口模型。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Driver</span>(() =&gt; <span class="keyword">new</span> <span class="type">Module</span> &#123;</span><br><span class="line">    <span class="comment">// Example circuit using a Queue</span></span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">      <span class="keyword">val</span> in = <span class="type">Flipped</span>(<span class="type">Decoupled</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)))</span><br><span class="line">      <span class="keyword">val</span> out = <span class="type">Decoupled</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">val</span> queue = <span class="type">Queue</span>(io.in, <span class="number">2</span>)  <span class="comment">// 2-element queue</span></span><br><span class="line">    io.out &lt;&gt; queue</span><br><span class="line">  &#125;) &#123; c =&gt; <span class="keyword">new</span> <span class="type">PeekPokeTester</span>(c) &#123;</span><br><span class="line">    <span class="comment">// Example testsequence showing the use and behavior of Queue</span></span><br><span class="line">    poke(c.io.out.ready, <span class="number">0</span>)</span><br><span class="line">    poke(c.io.in.valid, <span class="number">1</span>)  <span class="comment">// Enqueue an element</span></span><br><span class="line">    poke(c.io.in.bits, <span class="number">42</span>)</span><br><span class="line">    println(<span class="string">s&quot;Starting:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.in: ready=<span class="subst">$&#123;peek(c.io.in.ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.out: valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="comment">// in.Ready:1, out.Valid: 0</span></span><br><span class="line">    step(<span class="number">1</span>)</span><br><span class="line">      </span><br><span class="line">    poke(c.io.in.valid, <span class="number">1</span>)  <span class="comment">// Enqueue another element</span></span><br><span class="line">    poke(c.io.in.bits, <span class="number">43</span>)</span><br><span class="line">    <span class="comment">// What do you think io.out.valid and io.out.bits will be?</span></span><br><span class="line">    println(<span class="string">s&quot;After first enqueue:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.in: ready=<span class="subst">$&#123;peek(c.io.in.ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.out: valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">    step(<span class="number">1</span>)</span><br><span class="line">    <span class="comment">// in.Ready:1, out.Valid:1</span></span><br><span class="line">    </span><br><span class="line">    poke(c.io.in.valid, <span class="number">1</span>)  <span class="comment">// Read a element, attempt to enqueue</span></span><br><span class="line">    poke(c.io.in.bits, <span class="number">44</span>)</span><br><span class="line">    poke(c.io.out.ready, <span class="number">1</span>)</span><br><span class="line">    <span class="comment">// What do you think io.in.ready will be, and will this enqueue succeed, and what will be read?</span></span><br><span class="line">    println(<span class="string">s&quot;On first read:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.in: ready=<span class="subst">$&#123;peek(c.io.in.ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.out: valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">    step(<span class="number">1</span>)</span><br><span class="line">    <span class="comment">// in.Ready:0, out.Valid:1</span></span><br><span class="line">  </span><br><span class="line">    poke(c.io.in.valid, <span class="number">0</span>)  <span class="comment">// Read elements out</span></span><br><span class="line">    poke(c.io.out.ready, <span class="number">1</span>)</span><br><span class="line">    <span class="comment">// What do you think will be read here?</span></span><br><span class="line">    println(<span class="string">s&quot;On second read:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.in: ready=<span class="subst">$&#123;peek(c.io.in.ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.out: valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">    step(<span class="number">1</span>)</span><br><span class="line">    <span class="comment">// in.Ready:1, out.Valid:1</span></span><br><span class="line">  </span><br><span class="line">    <span class="comment">// Will a third read produce anything?</span></span><br><span class="line">    println(<span class="string">s&quot;On third read:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.in: ready=<span class="subst">$&#123;peek(c.io.in.ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tio.out: valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">    <span class="comment">// in.Ready:1, out.Valid:0</span></span><br><span class="line">    step(<span class="number">1</span>)</span><br><span class="line">&#125; &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="实例：仲裁器"><a href="#实例：仲裁器" class="headerlink" title="实例：仲裁器"></a>实例：仲裁器</h3><p>根据预先设定好的优先级，仲裁器将数据从<code>DecoupledIO</code>源路由到<code>DecoupledIO</code>目的。</p>
+<p>仲裁器分为</p>
+<ul>
+<li>普通仲裁器：优先允许Index较低的请求</li>
+<li>轮询仲裁器：轮询各个请求，优先级相等</li>
+</ul>
+<p><strong>发起请求的时候，是拉高<code>Valid</code>信号，而请求被满足的时候，接收方会拉高<code>Ready</code>信号。</strong></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">Driver</span>(() =&gt; <span class="keyword">new</span> <span class="type">Module</span> &#123;</span><br><span class="line">    <span class="comment">// Example circuit using a priority arbiter</span></span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">      <span class="keyword">val</span> in = <span class="type">Flipped</span>(<span class="type">Vec</span>(<span class="number">2</span>, <span class="type">Decoupled</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))))</span><br><span class="line">      <span class="keyword">val</span> out = <span class="type">Decoupled</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">// Arbiter doesn&#x27;t have a convenience constructor, so it&#x27;s built like any Module</span></span><br><span class="line">    <span class="keyword">val</span> arbiter = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">Arbiter</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>), <span class="number">2</span>))  <span class="comment">// 2 to 1 Priority Arbiter</span></span><br><span class="line">    arbiter.io.in &lt;&gt; io.in</span><br><span class="line">    io.out &lt;&gt; arbiter.io.out</span><br><span class="line">  &#125;) &#123; c =&gt; <span class="keyword">new</span> <span class="type">PeekPokeTester</span>(c) &#123;</span><br><span class="line">    poke(c.io.in(<span class="number">0</span>).valid, <span class="number">0</span>)</span><br><span class="line">    poke(c.io.in(<span class="number">1</span>).valid, <span class="number">0</span>)</span><br><span class="line">    println(<span class="string">s&quot;Start:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tin(0).ready=<span class="subst">$&#123;peek(c.io.in(0).ready)&#125;</span>, in(1).ready=<span class="subst">$&#123;peek(c.io.in(1).ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tout.valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, out.bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">    poke(c.io.in(<span class="number">1</span>).valid, <span class="number">1</span>)  <span class="comment">// Valid input 1</span></span><br><span class="line">    poke(c.io.in(<span class="number">1</span>).bits, <span class="number">42</span>)</span><br><span class="line">    <span class="comment">// What do you think the output will be?</span></span><br><span class="line">    println(<span class="string">s&quot;valid input 1:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tin(0).ready=<span class="subst">$&#123;peek(c.io.in(0).ready)&#125;</span>, in(1).ready=<span class="subst">$&#123;peek(c.io.in(1).ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tout.valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, out.bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">    poke(c.io.in(<span class="number">0</span>).valid, <span class="number">1</span>)  <span class="comment">// Valid inputs 0 and 1</span></span><br><span class="line">    poke(c.io.in(<span class="number">0</span>).bits, <span class="number">43</span>)</span><br><span class="line">    <span class="comment">// What do you think the output will be? Which inputs will be ready?</span></span><br><span class="line">    println(<span class="string">s&quot;valid inputs 0 and 1:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tin(0).ready=<span class="subst">$&#123;peek(c.io.in(0).ready)&#125;</span>, in(1).ready=<span class="subst">$&#123;peek(c.io.in(1).ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tout.valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, out.bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">    poke(c.io.in(<span class="number">1</span>).valid, <span class="number">0</span>)  <span class="comment">// Valid input 0</span></span><br><span class="line">    <span class="comment">// What do you think the output will be?</span></span><br><span class="line">    println(<span class="string">s&quot;valid input 0:&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tin(0).ready=<span class="subst">$&#123;peek(c.io.in(0).ready)&#125;</span>, in(1).ready=<span class="subst">$&#123;peek(c.io.in(1).ready)&#125;</span>&quot;</span>)</span><br><span class="line">    println(<span class="string">s&quot;\tout.valid=<span class="subst">$&#123;peek(c.io.out.valid)&#125;</span>, out.bits=<span class="subst">$&#123;peek(c.io.out.bits)&#125;</span>&quot;</span>)</span><br><span class="line">&#125; &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="其他常用函数"><a href="#其他常用函数" class="headerlink" title="其他常用函数"></a>其他常用函数</h2><h3 id="位操作"><a href="#位操作" class="headerlink" title="位操作"></a>位操作</h3><h4 id="PopCount"><a href="#PopCount" class="headerlink" title="PopCount"></a>PopCount</h4><p>PopCount对某个向量中的1的个数进行计数。</p>
+<h4 id="Reverse"><a href="#Reverse" class="headerlink" title="Reverse"></a>Reverse</h4><p>反转输入的向量。</p>
+<h3 id="计数器"><a href="#计数器" class="headerlink" title="计数器"></a>计数器</h3><p>计数器每个周期加1.</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> counter = <span class="type">Counter</span>(<span class="number">3</span>)  <span class="comment">// 3-count Counter (outputs range [0...2])</span></span><br><span class="line">when(io.count) &#123;</span><br><span class="line">    counter.inc()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其余的函数可以参见CheetSheet。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Chisel/" rel="tag"># Chisel</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/24/RV_Note_1/" rel="prev" title="RISC-V学习笔记（一）：RV32/64及Zicsr">
+      <i class="fa fa-chevron-left"></i> RISC-V学习笔记（一）：RV32/64及Zicsr
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/25/Chisel_Note_9/" rel="next" title="Chisel学习笔记（九）：容器">
+      Chisel学习笔记（九）：容器 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+        </div>
+        
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胡博涵</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

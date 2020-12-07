@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hubohan.space","root":"/","scheme":"Pisces","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
+  </script>
+
+  <meta name="description" content="Chisel的一大优势，就是不仅可以编写硬件描述代码，还可以灵活地编写硬件生成器，即“生成硬件”的代码。再其他硬件描述语言，例如Verilog中 ，笔者比较经常使用Python来生成一些繁复的代码，例如端口连线、实例化等。 硬件模块参数化参数可以是非常普通的Scala整形常量，也可以是Chisel的硬件类型。 简单的参数 对电路定制最简单的参数化方法是使用参数来定义位宽。  参数可以作为Chise">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chisel学习笔记（七）：硬件生成器">
+<meta property="og:url" content="http://hubohan.space/2020/08/24/Chisel_Note_7/index.html">
+<meta property="og:site_name" content="Hu&#39;s Blog">
+<meta property="og:description" content="Chisel的一大优势，就是不仅可以编写硬件描述代码，还可以灵活地编写硬件生成器，即“生成硬件”的代码。再其他硬件描述语言，例如Verilog中 ，笔者比较经常使用Python来生成一些繁复的代码，例如端口连线、实例化等。 硬件模块参数化参数可以是非常普通的Scala整形常量，也可以是Chisel的硬件类型。 简单的参数 对电路定制最简单的参数化方法是使用参数来定义位宽。  参数可以作为Chise">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200824210948423.png">
+<meta property="article:published_time" content="2020-08-24T06:00:00.000Z">
+<meta property="article:modified_time" content="2020-12-07T03:08:44.471Z">
+<meta property="article:author" content="胡博涵">
+<meta property="article:tag" content="Chisel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200824210948423.png">
+
+<link rel="canonical" href="http://hubohan.space/2020/08/24/Chisel_Note_7/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Chisel学习笔记（七）：硬件生成器 | Hu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <main class="main">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Hu's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Who's blog?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E6%A8%A1%E5%9D%97%E5%8F%82%E6%95%B0%E5%8C%96"><span class="nav-number">1.</span> <span class="nav-text">硬件模块参数化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AE%80%E5%8D%95%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">1.1.</span> <span class="nav-text">简单的参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E7%A1%AC%E4%BB%B6%E7%9A%84%E8%A1%8C%E4%B8%BA%E5%8F%82%E6%95%B0%E5%8C%96"><span class="nav-number">1.2.</span> <span class="nav-text">将硬件的行为参数化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A5%E7%B1%BB%E5%9E%8B%E4%B8%BA%E5%8F%82%E6%95%B0%E7%9A%84%E5%87%BD%E6%95%B0"><span class="nav-number">1.3.</span> <span class="nav-text">以类型为参数的函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A5%E7%B1%BB%E5%9E%8B%E4%B8%BA%E6%A8%A1%E5%9D%97%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">1.4.</span> <span class="nav-text">以类型为模块的参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E5%8F%82%E6%95%B0%E5%8C%96%E7%9A%84Bundle"><span class="nav-number">1.5.</span> <span class="nav-text">可参数化的Bundle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E9%80%89%E7%9A%84IO%E7%AB%AF%E5%8F%A3"><span class="nav-number">1.6.</span> <span class="nav-text">可选的IO端口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%AF%E9%80%89%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-number">1.7.</span> <span class="nav-text">可选的参数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90%E7%BB%84%E5%90%88%E9%80%BB%E8%BE%91"><span class="nav-number">2.</span> <span class="nav-text">用代码生成组合逻辑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E7%BB%A7%E6%89%BF"><span class="nav-number">3.</span> <span class="nav-text">使用继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A8%A1%E5%BC%8F%E5%8C%B9%E9%85%8D%E6%9C%BA%E5%88%B6"><span class="nav-number">4.</span> <span class="nav-text">模式匹配机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%80%BC%E5%8C%B9%E9%85%8D"><span class="nav-number">4.1.</span> <span class="nav-text">值匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%9A%E5%80%BC%E5%8C%B9%E9%85%8D"><span class="nav-number">4.2.</span> <span class="nav-text">多值匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B1%BB%E5%9E%8B%E5%8C%B9%E9%85%8D"><span class="nav-number">4.3.</span> <span class="nav-text">类型匹配</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">4.4.</span> <span class="nav-text">使用实例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%90%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">隐式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9A%90%E5%BC%8F%E5%8F%82%E6%95%B0"><span class="nav-number">5.1.</span> <span class="nav-text">隐式参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9A%90%E5%BC%8F%E8%BD%AC%E6%8D%A2"><span class="nav-number">5.2.</span> <span class="nav-text">隐式转换</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BE%8B%E5%AD%90%EF%BC%9AMealy%E6%9C%BA%E7%94%9F%E6%88%90%E5%99%A8"><span class="nav-number">6.</span> <span class="nav-text">例子：Mealy机生成器</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">胡博涵</p>
+  <div class="site-description" itemprop="description">CS Undergraduate at Harbin Institute of Technology, Shenzhen</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Bohan-Hu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Bohan-Hu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubohancser@gmail.com" title="E-Mail → mailto:hubohancser@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </header>
+
+      
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+      <div class="main-inner">
+        
+
+        <div class="content post posts-expand">
+          
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/24/Chisel_Note_7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chisel学习笔记（七）：硬件生成器
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-24 14:00:00" itemprop="dateCreated datePublished" datetime="2020-08-24T14:00:00+08:00">2020-08-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>Chisel的一大优势，就是不仅可以编写硬件描述代码，还可以灵活地编写硬件生成器，即“生成硬件”的代码。再其他硬件描述语言，例如Verilog中 ，笔者比较经常使用Python来生成一些繁复的代码，例如端口连线、实例化等。</p>
+<h2 id="硬件模块参数化"><a href="#硬件模块参数化" class="headerlink" title="硬件模块参数化"></a>硬件模块参数化</h2><p>参数可以是非常普通的Scala整形常量，也可以是Chisel的硬件类型。</p>
+<h3 id="简单的参数"><a href="#简单的参数" class="headerlink" title="简单的参数"></a>简单的参数</h3><ul>
+<li><p>对电路定制最简单的参数化方法是使用参数来定义位宽。</p>
+</li>
+<li><p>参数可以作为Chisel模块的构造器参数传入类的构造函数中。</p>
+</li>
+</ul>
+<p>下面是一个可定制宽度的加法器的例子：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ParamAdder</span>(<span class="params">n: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;</span><br><span class="line">        <span class="keyword">val</span> a = <span class="type">Input</span>(<span class="type">UInt</span>(n.<span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> b = <span class="type">Input</span>(<span class="type">UInt</span>(n.<span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> c = <span class="type">Output</span>(<span class="type">UInt</span>(n.<span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    io.c := io.a + io.b</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">val</span> add_8 = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">ParamAdder</span>(<span class="number">8</span>))</span><br></pre></td></tr></table></figure>
+
+<p>为了保证鲁棒性，防止硬件和预期不同，一般需要在类的头部加上一个<code>require</code>语句，来对参数的合法性进行断言。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ParameterizedWidthAdder</span>(<span class="params">in0Width: <span class="type">Int</span>, in1Width: <span class="type">Int</span>, sumWidth: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  require(in0Width &gt;= <span class="number">0</span>)</span><br><span class="line">  require(in1Width &gt;= <span class="number">0</span>)</span><br><span class="line">  require(sumWidth &gt;= <span class="number">0</span>)</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in0 = <span class="type">Input</span>(<span class="type">UInt</span>(in0Width.<span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> in1 = <span class="type">Input</span>(<span class="type">UInt</span>(in1Width.<span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> sum = <span class="type">Output</span>(<span class="type">UInt</span>(sumWidth.<span class="type">W</span>))</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// a +&amp; b includes the carry, a + b does not</span></span><br><span class="line">  io.sum := io.in0 +&amp; io.in1</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="将硬件的行为参数化"><a href="#将硬件的行为参数化" class="headerlink" title="将硬件的行为参数化"></a>将硬件的行为参数化</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Sort4</span>(<span class="params">ascending: <span class="type">Boolean</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in0 = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> in1 = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> in2 = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> in3 = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> out0 = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> out1 = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> out2 = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> out3 = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">  &#125;)</span><br><span class="line">    </span><br><span class="line">  <span class="comment">// this comparison funtion decides &lt; or &gt; based on the module&#x27;s parameterization</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">comp</span></span>(l: <span class="type">UInt</span>, r: <span class="type">UInt</span>): <span class="type">Bool</span> = &#123;</span><br><span class="line">      <span class="keyword">if</span> (ascending) &#123;</span><br><span class="line">        l &lt; r</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        l &gt; r</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">val</span> row10 = <span class="type">Wire</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">  <span class="keyword">val</span> row11 = <span class="type">Wire</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">  <span class="keyword">val</span> row12 = <span class="type">Wire</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">  <span class="keyword">val</span> row13 = <span class="type">Wire</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line"></span><br><span class="line">  when(comp(io.in0, io.in1)) &#123;</span><br><span class="line">    row10 := io.in0            <span class="comment">// preserve first two elements</span></span><br><span class="line">    row11 := io.in1</span><br><span class="line">  &#125;.otherwise &#123;</span><br><span class="line">    row10 := io.in1            <span class="comment">// swap first two elements</span></span><br><span class="line">    row11 := io.in0</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述例子中，我们看到，硬件的行为被参数化了，<code>comp(UInt, UInt) =&gt; Bool</code>函数接收的是两个硬件的节点，返回的也是两个硬件的节点。</p>
+<h3 id="以类型为参数的函数"><a href="#以类型为参数的函数" class="headerlink" title="以类型为参数的函数"></a>以类型为参数的函数</h3><p>类型同样可以作为参数，传递入函数中。</p>
+<p>以下的例子可以让Chisel生成对应数据类型的多路选择器。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">myMux</span></span>[ <span class="type">T</span> &lt;: <span class="type">Data</span>](sel: <span class="type">Bool</span>, tPath: <span class="type">T</span>, fPath: <span class="type">T</span>): <span class="type">T</span> = &#123;</span><br><span class="line">    <span class="keyword">val</span> ret = <span class="type">WireDefault</span>(fPath) </span><br><span class="line">    when(sel) &#123;</span><br><span class="line">        ret := tPath</span><br><span class="line">    &#125;</span><br><span class="line">    ret                <span class="comment">// 返回一个“硬件”</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上述的例子中，表达式中<code>[T &lt;: Data]</code>定义了一个类型参数<code>T</code>，其中<code>T</code>应当是<code>Data</code>类或者<code>Data</code>的子类。<code>Data</code>是Chisel类型系统的根类型。</p>
+<p>我们可以通过以下的方式获得一个多路选择器：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> resA = myMux(selA, <span class="number">5.</span><span class="type">U</span>, <span class="number">10.</span><span class="type">U</span>)</span><br></pre></td></tr></table></figure>
+
+<p>如果使用不同类型的参数，将会造成runtime error.</p>
+<p>我们甚至可以传入一个复杂的Bundle作为多路选择器的选择值。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> tVal = <span class="type">Wire</span>(<span class="keyword">new</span> <span class="type">ComplexIO</span>)</span><br><span class="line"><span class="keyword">val</span> fVal = <span class="type">Wire</span>(<span class="keyword">new</span> <span class="type">ComplexIO</span>)</span><br><span class="line"><span class="keyword">val</span> resB = myMux(selB, tVal, fVal)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以使用cloneType方法来获取某个数据的类型。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">def myMux[ T &lt;: Data](sel: Bool, tPath: T, fPath: T): T &#x3D; &#123;</span><br><span class="line">    val ret &#x3D; Wire(fPath.cloneType)        &#x2F;&#x2F; 获取数据类型</span><br><span class="line">    ret :&#x3D; fPath</span><br><span class="line">    when(sel) &#123;</span><br><span class="line">        ret :&#x3D; tPath</span><br><span class="line">    &#125;</span><br><span class="line">    ret                &#x2F;&#x2F; 返回一个“硬件”</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="以类型为模块的参数"><a href="#以类型为模块的参数" class="headerlink" title="以类型为模块的参数"></a>以类型为模块的参数</h3><p>设想，我们要实现一个NOC中在不同处理器核之间移动数据的模块，我们并不会在路由接口中对其进行硬编码，而是将其参数化。除此之外，我们还将路由端口的数量进行了参数化。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NoCRouter</span>[ <span class="type">T</span> &lt;: <span class="type">Data</span>](<span class="params">dt: <span class="type">T</span>, n: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> inPort = <span class="type">Input</span>(<span class="type">Vec</span>(n, dt))</span><br><span class="line">        <span class="keyword">val</span> address = <span class="type">Input</span>(<span class="type">Vec</span>(n, <span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)))</span><br><span class="line">        <span class="keyword">val</span> outPort = <span class="type">Output</span>(<span class="type">Vec</span>(n, dt))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">// 根据地址进行路由</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于在不同的处理器之间传递的信息，我们使用一个<code>Payload</code>来代表。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Payload</span> <span class="keyword">extends</span> <span class="title">Bundle</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> data = <span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>)</span><br><span class="line">    <span class="keyword">val</span> flag = <span class="type">Bool</span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>现在，我们可以根据此来创建一个新的路由模块了。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> router = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">NocRouter</span>(<span class="keyword">new</span> <span class="type">Payload</span>, <span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="可参数化的Bundle"><a href="#可参数化的Bundle" class="headerlink" title="可参数化的Bundle"></a>可参数化的Bundle</h3><p>在上面的例子中，我们对于Payload使用了统一的Data类型Bool，进一步思考，是否可以将Data类型也进行参数化呢？</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Port</span>[ <span class="type">T</span> &lt;: <span class="type">Data</span> ](<span class="params">dt: <span class="type">T</span></span>) <span class="keyword">extends</span> <span class="title">Bundle</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> address = <span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)</span><br><span class="line">    <span class="keyword">val</span> data = dt.cloneType</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意上面的<code>cloneType</code>方法，<code>Bundle</code>的参数<code>T</code>，应当是属于Chisel的<code>Data</code>类型的子类。在Bundle中，我们定义了一个<code>data</code>域，通过在参数上面应用<code>cloneType</code>方法，来定义数据类型。</p>
+<blockquote>
+<p>以下语句摘录自Chisel-Book，用于备忘：</p>
+<p>However, when we use a constructor parameter, this parameter becomes a public field of the class. When Chisel needs to clone the type of the Bundle, e.g., when it is used in a Vec, this public field is in the way.</p>
+</blockquote>
+<p>为了避免上述情况，可以使用以下的方法定义：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Port</span>[ <span class="type">T</span> &lt;: <span class="type">Data</span> ](<span class="params">dt: <span class="type">T</span></span>) <span class="keyword">extends</span> <span class="title">Bundle</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> address = <span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)</span><br><span class="line">    <span class="keyword">val</span> data = dt.cloneType</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时，我们可以定义路由模块了：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">NocRouter2</span>[ <span class="type">T</span> &lt;: <span class="type">Data</span> ](<span class="params">dt: <span class="type">T</span>, n: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> inPort = <span class="type">Input</span>(<span class="type">Vec</span>(n, dt))</span><br><span class="line">        <span class="keyword">val</span> outPort = <span class="type">Output</span>(<span class="type">Vec</span>(n, dt))</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>实例化代码：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> router = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">NocRouter2</span>(<span class="keyword">new</span> <span class="type">Port</span>(<span class="keyword">new</span> <span class="type">Payload</span>), <span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+
+<h3 id="可选的IO端口"><a href="#可选的IO端口" class="headerlink" title="可选的IO端口"></a>可选的IO端口</h3><p>常用于有时可以选择去除某些调试信号。</p>
+<p>注意到如果val是None，那么就没有这个信号了。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">HalfFullAdder</span>(<span class="params">val hasCarry: <span class="type">Boolean</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> a = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">1.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> b = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">1.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> carryIn = <span class="keyword">if</span> (hasCarry) <span class="type">Some</span>(<span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">1.</span><span class="type">W</span>))) <span class="keyword">else</span> <span class="type">None</span></span><br><span class="line">    <span class="keyword">val</span> s = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">1.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> carryOut = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">1.</span><span class="type">W</span>))</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">val</span> sum = io.a +&amp; io.b +&amp; io.carryIn.getOrElse(<span class="number">0.</span><span class="type">U</span>)</span><br><span class="line">  io.s := sum(<span class="number">0</span>)</span><br><span class="line">  io.carryOut := sum(<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="可选的参数"><a href="#可选的参数" class="headerlink" title="可选的参数"></a>可选的参数</h3><p>可以使用<code>Option</code>类型，来定义某个可选的参数，在实例化的时候，如果不提供这个参数，那么这个参数的<code>isDefined</code>字段就为<code>False</code>。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DelayBy1</span>(<span class="params">resetValue: <span class="type">Option</span>[<span class="type">UInt</span>] = <span class="type">None</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> in  = <span class="type">Input</span>( <span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">val</span> reg = <span class="keyword">if</span> (resetValue.isDefined) &#123; <span class="comment">// resetValue = Some(number)</span></span><br><span class="line">        <span class="type">RegInit</span>(resetValue.get)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123; <span class="comment">//resetValue = None</span></span><br><span class="line">        <span class="type">Reg</span>(<span class="type">UInt</span>())</span><br><span class="line">    &#125;</span><br><span class="line">    reg := io.in</span><br><span class="line">    io.out := reg</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">println(getVerilog(<span class="keyword">new</span> <span class="type">DelayBy1</span>))</span><br><span class="line">println(getVerilog(<span class="keyword">new</span> <span class="type">DelayBy1</span>(<span class="type">Some</span>(<span class="number">3.</span><span class="type">U</span>))))</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="用代码生成组合逻辑"><a href="#用代码生成组合逻辑" class="headerlink" title="用代码生成组合逻辑"></a>用代码生成组合逻辑</h2><p>在Chisel中，我们可以通过从Scala的<code>Array</code>转为Chisel的<code>Vec</code>类型，非常方便地创建组合逻辑表格。我们可以使用存储在文件中的数据，在硬件生成阶段创建一个逻辑表：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chisel3._</span><br><span class="line"><span class="keyword">import</span> scala.io.<span class="type">Source</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FileReader</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> address = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> data = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">val</span> array = <span class="keyword">new</span> <span class="type">Array</span>[<span class="type">Int</span>](<span class="number">256</span>)</span><br><span class="line">    <span class="keyword">val</span> idx = <span class="number">0</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 将文件的内容读入到scala的数组中</span></span><br><span class="line">    <span class="keyword">val</span> source = <span class="type">Source</span>.fromFile(<span class="string">&quot;data.txt&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span>(line &lt;- source.getLines()) &#123;</span><br><span class="line">        array(idx) = line.toInt</span><br><span class="line">        idx += <span class="number">1</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 将scala整数array转换成chisel的vec类型</span></span><br><span class="line">    <span class="keyword">val</span> table = <span class="type">VecInit</span>(array.map(_.<span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>)))</span><br><span class="line">    <span class="comment">// 使用索引访问Table</span></span><br><span class="line">    io.data := table(io.address)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>让我们把目光聚焦到这一行代码：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> table = <span class="type">VecInit</span>(array.map(_.<span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>)))</span><br></pre></td></tr></table></figure>
+
+<p>一个Scala的数组（Array）可以被隐式地转换成一个序列（Sequence），序列支持<code>map</code>函数。<code>map</code>函数的意义是，将函数应用到序列中的每一个对象，并返回经过处理后的序列。在上述代码中，<code>_.U(8.W)</code>是一个匿名函数，<code>_</code>是一个通配符，代表列表中的元素，这个函数将列表中的Scala Int类型转换为Chisel中硬件的<code>UInt</code>，位宽为8. </p>
+<p>有了这个方法，我们可以非常便捷的编码某些查找表逻辑，例如，二进制转BCD逻辑，等等。</p>
+<h2 id="使用继承"><a href="#使用继承" class="headerlink" title="使用继承"></a>使用继承</h2><p>Chisel基于Scala，而Scala是一门面向对象的语言。因此，我们可以充分利用面向对象的特性，抽象出不同的硬件模块的共同行为，构造出一个父类。</p>
+<p>在之前的学习中，我们已经构造了不同的计数器。假设现在有了新的场景，我们需要实现不同版本的计数器，来比较其资源消耗情况。</p>
+<p>此时，我们需要先定义一个抽象类：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Ticker</span>(<span class="params">n: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;</span><br><span class="line">        <span class="keyword">val</span> tick = <span class="type">Output</span>(<span class="type">Bool</span>())</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果我们需要具体的实现某个Ticker，则需要继承这个抽象类：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UpTicker</span> (<span class="params">n: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Ticker</span>(<span class="params">n</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> <span class="type">N</span> = (n<span class="number">-1</span>).<span class="type">U</span></span><br><span class="line">    <span class="keyword">val</span> cntReg = <span class="type">RegInit</span> (<span class="number">0.</span><span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    cntReg := cntReg + <span class="number">1.</span><span class="type">U</span></span><br><span class="line">    when(cntReg === <span class="type">N</span>) &#123;</span><br><span class="line">        cntReg := <span class="number">0.</span><span class="type">U</span></span><br><span class="line">    &#125;</span><br><span class="line">    io.tick := cntReg === <span class="type">N</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试代码的参数包括：</p>
+<p>（1）类型：仅接收Ticker类型</p>
+<p>（2）DUT：用以测试的代码</p>
+<p>（3）期待得到tick的周期数</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chisel3.iotesters.<span class="type">PeekPokeTester</span></span><br><span class="line"><span class="keyword">import</span> org.scalatest._</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TickerTester</span>[ <span class="type">T</span> &lt;: <span class="type">Ticker</span> ](<span class="params"> dut: <span class="type">T</span>, n: <span class="type">Int</span></span>) <span class="keyword">extends</span></span></span><br><span class="line"><span class="class">    <span class="title">PeekPokeTester</span>(<span class="params">dut: <span class="type">T</span></span>) </span>&#123;</span><br><span class="line">        <span class="comment">// -1 is the notion that we have not yet seen the first tick</span></span><br><span class="line">        <span class="keyword">var</span> count = <span class="number">-1</span></span><br><span class="line">        <span class="keyword">for</span> (i &lt;- <span class="number">0</span> to n * <span class="number">3</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (count &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            expect(dut.io.tick , <span class="number">0</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (count == <span class="number">0</span>) &#123;</span><br><span class="line">            expect(dut.io.tick , <span class="number">1</span>)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">val</span> t = peek(dut.io.tick)</span><br><span class="line">        <span class="comment">// On a tick we reset the tester counter to N-1,</span></span><br><span class="line">        <span class="comment">// otherwise we decrement the tester counter</span></span><br><span class="line">        <span class="keyword">if</span> (t == <span class="number">1</span>) &#123;</span><br><span class="line">            count = n<span class="number">-1</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            count -= <span class="number">1</span></span><br><span class="line">        &#125;</span><br><span class="line">           step (<span class="number">1</span>)</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="模式匹配机制"><a href="#模式匹配机制" class="headerlink" title="模式匹配机制"></a>模式匹配机制</h2><p>Scala的模式匹配机制在Chisel中非常常见，Scala提供了强大的模式匹配机制，包括：</p>
+<ul>
+<li>类似于C语言的<code>switch</code>语句的匹配功能</li>
+<li>对于不同值的任意组合进行匹配</li>
+<li>对于变量的类型进行匹配，这一点非常好用，例如：<ul>
+<li>用于迭代的值来自于列表，而列表中对象的类型不尽相同</li>
+<li>变量是某个超类的成员，但并不知道其子类是什么</li>
+</ul>
+</li>
+<li>通过正则表达式匹配字符串的子串</li>
+</ul>
+<h3 id="值匹配"><a href="#值匹配" class="headerlink" title="值匹配"></a>值匹配</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// y is an integer variable defined somewhere else in the code</span></span><br><span class="line"><span class="keyword">val</span> y = <span class="number">7</span></span><br><span class="line"><span class="comment">/// ...</span></span><br><span class="line"><span class="keyword">val</span> x = y <span class="keyword">match</span> &#123;</span><br><span class="line">  <span class="keyword">case</span> <span class="number">0</span> =&gt; <span class="string">&quot;zero&quot;</span> <span class="comment">// 可以写在同一行里</span></span><br><span class="line">  <span class="keyword">case</span> <span class="number">1</span> =&gt;        <span class="comment">// 可以不写在同一行里</span></span><br><span class="line">      <span class="string">&quot;one&quot;</span>        <span class="comment">// 在下一个case之前都是这个case的代码</span></span><br><span class="line">  <span class="keyword">case</span> <span class="number">2</span> =&gt; &#123;      <span class="comment">// 可以添加大括号，但通常不是必要的</span></span><br><span class="line">      <span class="string">&quot;two&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">case</span> _ =&gt; <span class="string">&quot;many&quot;</span> <span class="comment">// _可以匹配所有的值</span></span><br><span class="line">&#125;</span><br><span class="line">println(<span class="string">&quot;y is &quot;</span> + x)</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>模式匹配是按照从上到下的顺序的，一旦发生成功匹配，就不会进行接下来的搜索</li>
+<li>通配符<code>_</code>的作用是匹配其他值，用于处理没有匹配上的情况</li>
+</ul>
+<h3 id="多值匹配"><a href="#多值匹配" class="headerlink" title="多值匹配"></a>多值匹配</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">animalType</span></span>(biggerThanBreadBox: <span class="type">Boolean</span>, meanAsCanBe: <span class="type">Boolean</span>): <span class="type">String</span> = &#123;</span><br><span class="line">  (biggerThanBreadBox, meanAsCanBe) <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> (<span class="literal">true</span>, <span class="literal">true</span>) =&gt; <span class="string">&quot;wolverine&quot;</span></span><br><span class="line">    <span class="keyword">case</span> (<span class="literal">true</span>, <span class="literal">false</span>) =&gt; <span class="string">&quot;elephant&quot;</span></span><br><span class="line">    <span class="keyword">case</span> (<span class="literal">false</span>, <span class="literal">true</span>) =&gt; <span class="string">&quot;shrew&quot;</span></span><br><span class="line">    <span class="keyword">case</span> (<span class="literal">false</span>, <span class="literal">false</span>) =&gt; <span class="string">&quot;puppy&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">println(animalType(<span class="literal">true</span>, <span class="literal">true</span>))</span><br></pre></td></tr></table></figure>
+
+<p>多值匹配的语法如上所示。</p>
+<h3 id="类型匹配"><a href="#类型匹配" class="headerlink" title="类型匹配"></a>类型匹配</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> sequence = <span class="type">Seq</span>(<span class="string">&quot;a&quot;</span>, <span class="number">1</span>, <span class="number">0.0</span>)</span><br><span class="line">sequence.foreach &#123; x =&gt;</span><br><span class="line">  x <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> s: <span class="type">String</span> =&gt; println(<span class="string">s&quot;<span class="subst">$x</span> is a String&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> s: <span class="type">Int</span>    =&gt; println(<span class="string">s&quot;<span class="subst">$x</span> is an Int&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> s: <span class="type">Double</span> =&gt; println(<span class="string">s&quot;<span class="subst">$x</span> is a Double&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> _ =&gt; println(<span class="string">s&quot;<span class="subst">$x</span> is an unknown type!&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Scala是强类型语言，类型匹配是一种强大的机制。</p>
+<p>如果想匹配多种类型，可以这样写，注意此时需要使用通配符<code>_</code>。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> sequence = <span class="type">Seq</span>(<span class="string">&quot;a&quot;</span>, <span class="number">1</span>, <span class="number">0.0</span>)</span><br><span class="line">sequence.foreach &#123; x =&gt;</span><br><span class="line">  x <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> _: <span class="type">Int</span> | _: <span class="type">Double</span> =&gt; println(<span class="string">s&quot;<span class="subst">$x</span> is a number!&quot;</span>)</span><br><span class="line">    <span class="keyword">case</span> _ =&gt; println(<span class="string">s&quot;<span class="subst">$x</span> is an unknown type!&quot;</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="使用实例"><a href="#使用实例" class="headerlink" title="使用实例"></a>使用实例</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DelayBy1</span>(<span class="params">resetValue: <span class="type">Option</span>[<span class="type">UInt</span>] = <span class="type">None</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in  = <span class="type">Input</span>( <span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">val</span> reg = resetValue <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="type">Some</span>(r) =&gt; <span class="type">RegInit</span>(r)</span><br><span class="line">    <span class="keyword">case</span> <span class="type">None</span>    =&gt; <span class="type">Reg</span>(<span class="type">UInt</span>())</span><br><span class="line">  &#125;</span><br><span class="line">  reg := io.in</span><br><span class="line">  io.out := reg</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用模式匹配去匹配类型。</p>
+<h2 id="隐式"><a href="#隐式" class="headerlink" title="隐式"></a>隐式</h2><p>Scala引入了隐式的概念，允许编译器引入部分语法糖。</p>
+<h3 id="隐式参数"><a href="#隐式参数" class="headerlink" title="隐式参数"></a>隐式参数</h3><p>有时，我们的代码可能需要访问一些顶层的变量，特别是在比较深的嵌套函数调用中。相比于我们手动将这些变量在每次函数调用中传递，我们可以使用隐式参数。</p>
+<p>在Scala中，我们可以隐式或显式地传入参数：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">CatDog</span> </span>&#123;</span><br><span class="line">  <span class="keyword">implicit</span> <span class="keyword">val</span> numberOfCats: <span class="type">Int</span> = <span class="number">3</span></span><br><span class="line">  <span class="comment">//implicit val numberOfDogs: Int = 5</span></span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">tooManyCats</span></span>(nDogs: <span class="type">Int</span>)(<span class="keyword">implicit</span> nCats: <span class="type">Int</span>): <span class="type">Boolean</span> = nCats &gt; nDogs</span><br><span class="line">    </span><br><span class="line">  <span class="keyword">val</span> imp = tooManyCats(<span class="number">2</span>)    <span class="comment">// 隐式地传入了参数nCats </span></span><br><span class="line">  <span class="keyword">val</span> exp = tooManyCats(<span class="number">2</span>)(<span class="number">1</span>) <span class="comment">// 显式地传入了参数nCats </span></span><br><span class="line">&#125;</span><br><span class="line"><span class="type">CatDog</span>.imp</span><br><span class="line"><span class="type">CatDog</span>.exp</span><br></pre></td></tr></table></figure>
+
+<p>此处，我们首先定义了一个<strong>隐式值</strong><code>numberOfCats</code>。在某个定义域内，<strong>同一个类型</strong>的隐式值只能有一个值。（Scala通过类型来进行判定的，从上述代码可以看到，<code>nCats</code>和<code>numberOfCats</code>并不同名）</p>
+<p>然后，我们定义了一个函数，接收两个参数列表，第一个是显式的参数值，第二个是隐式的参数值。</p>
+<p>当我们调用<code>tooManyCats</code>函数的时候，我们可以隐藏第二个参数列表（让编译器为我们寻找隐式值），或是显式地提供相应的参数（可以和默认的隐式值不同）。</p>
+<p>以下情况下，隐式参数推断会失败：</p>
+<ul>
+<li><p>在作用域中定义了给定类型的两个或多个隐含值</p>
+</li>
+<li><p>编译器找不到函数调用所需的隐含值</p>
+</li>
+</ul>
+<h3 id="隐式转换"><a href="#隐式转换" class="headerlink" title="隐式转换"></a>隐式转换</h3><p>类似于隐式参数的，隐式转换常常被用于减少模板代码的数量。更具体地，它们用来<strong>自动将Scala对象转换为其他对象</strong>。</p>
+<p>在下面的例子中，我们有两个类，分别为<code>Animal</code>和<code>Human</code>类，<code>Animal</code>有<code>Species</code>字段，但是<code>Human</code>没有。</p>
+<p>当我们在<code>Human</code>上面调用<code>Species</code>时，编译器会尝试进行隐式转换。</p>
+<p>因此，为了完成<code>Animal</code>到<code>Human</code>之间的转换，我们需要定义一个转换函数。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Animal</span>(<span class="params">val name: <span class="type">String</span>, val species: <span class="type">String</span></span>)</span></span><br><span class="line"><span class="class"><span class="title">class</span> <span class="title">Human</span>(<span class="params">val name: <span class="type">String</span></span>)</span></span><br><span class="line"><span class="class"><span class="title">implicit</span> <span class="title">def</span> <span class="title">human2animal</span>(<span class="params">h: <span class="type">Human</span></span>)</span>: <span class="type">Animal</span> = <span class="keyword">new</span> <span class="type">Animal</span>(h.name, <span class="string">&quot;Homo sapiens&quot;</span>)</span><br><span class="line"><span class="keyword">val</span> me = <span class="keyword">new</span> <span class="type">Human</span>(<span class="string">&quot;Adam&quot;</span>)</span><br><span class="line">println(me.species)</span><br></pre></td></tr></table></figure>
+
+<h2 id="例子：Mealy机生成器"><a href="#例子：Mealy机生成器" class="headerlink" title="例子：Mealy机生成器"></a>例子：Mealy机生成器</h2><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Mealy machine has</span></span><br><span class="line"><span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">BinaryMealyParams</span>(<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">  // number of states</span></span></span><br><span class="line"><span class="class"><span class="params">  nStates: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">  // initial state</span></span></span><br><span class="line"><span class="class"><span class="params">  s0: <span class="type">Int</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">  // function describing state transition</span></span></span><br><span class="line"><span class="class"><span class="params">  stateTransition: (<span class="type">Int</span>, <span class="type">Boolean</span></span>) <span class="title">=&gt;</span> <span class="title">Int</span>,</span></span><br><span class="line"><span class="class">  <span class="title">//</span> <span class="title">function</span> <span class="title">describing</span> <span class="title">output</span></span></span><br><span class="line"><span class="class">  <span class="title">output</span></span>: (<span class="type">Int</span>, <span class="type">Boolean</span>) =&gt; <span class="type">Int</span></span><br><span class="line">) &#123;</span><br><span class="line">  require(nStates &gt;= <span class="number">0</span>)</span><br><span class="line">  require(s0 &lt; nStates &amp;&amp; s0 &gt;= <span class="number">0</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">BinaryMealy</span>(<span class="params">val mp: <span class="type">BinaryMealyParams</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in = <span class="type">Input</span>(<span class="type">Bool</span>())</span><br><span class="line">    <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span>())</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">val</span> state = <span class="type">RegInit</span>(<span class="type">UInt</span>(), mp.s0.<span class="type">U</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// output zero if no states</span></span><br><span class="line">  io.out := <span class="number">0.</span><span class="type">U</span></span><br><span class="line">  <span class="keyword">for</span> (i &lt;- <span class="number">0</span> until mp.nStates) &#123;</span><br><span class="line">    when (state === i.<span class="type">U</span>) &#123;</span><br><span class="line">      when (io.in) &#123;</span><br><span class="line">        state  := mp.stateTransition(i, <span class="literal">true</span>).<span class="type">U</span></span><br><span class="line">        io.out := mp.output(i, <span class="literal">true</span>).<span class="type">U</span></span><br><span class="line">      &#125;.otherwise &#123;</span><br><span class="line">        state  := mp.stateTransition(i, <span class="literal">false</span>).<span class="type">U</span></span><br><span class="line">        io.out := mp.output(i, <span class="literal">false</span>).<span class="type">U</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述的代码是一个Mealy状态机的生成逻辑。首先，声明了一个<code>case class</code>，在里面包装了所有构建Mealy机所需的参数，包括状态的数量、初态、状态转移函数和输出函数，并且使用了两个<code>require</code>语句做断言，保证状态的合法性。</p>
+<p><code>BinaryMealy</code>是状态机的硬件模块，其构造器接收参数<code>mp</code>，这个参数用以构建状态机。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200824210948423.png" alt="image-20200824210948423"></p>
+<p>下面构造这个状态机的参数：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> nStates = <span class="number">3</span></span><br><span class="line"><span class="keyword">val</span> s0 = <span class="number">2</span></span><br><span class="line"><span class="comment">// 将上述函数翻译成状态转移函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">stateTransition</span></span>(state: <span class="type">Int</span>, in: <span class="type">Boolean</span>): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="keyword">if</span>(in) &#123;</span><br><span class="line">        <span class="number">1</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 状态机输出函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">output</span></span>(state:<span class="type">Int</span>, in: <span class="type">Boolean</span>): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="keyword">if</span> (state == <span class="number">2</span>) &#123;</span><br><span class="line">        <span class="number">0</span></span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> ((state == <span class="number">1</span> &amp;&amp; !in) || (state == <span class="number">0</span> &amp;&amp; in)) &#123;</span><br><span class="line">        <span class="number">1</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="number">0</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">val</span> testParams = <span class="type">BinaryMealyParams</span>(nStates, s0, stateTransition, output)</span><br></pre></td></tr></table></figure>
+
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Chisel/" rel="tag"># Chisel</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/23/Chisel_Note_6/" rel="prev" title="Chisel学习笔记（六）：有限状态机">
+      <i class="fa fa-chevron-left"></i> Chisel学习笔记（六）：有限状态机
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/24/RV_Note_1/" rel="next" title="RISC-V学习笔记（一）：RV32/64及Zicsr">
+      RISC-V学习笔记（一）：RV32/64及Zicsr <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+        </div>
+        
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胡博涵</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

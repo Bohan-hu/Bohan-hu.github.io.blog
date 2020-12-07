@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hubohan.space","root":"/","scheme":"Pisces","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
+  </script>
+
+  <meta name="description" content="Scala中的函数式编程函数，以多个值为输入，以单个值为输出。输入值通常叫做参数。如果函数没有输出，则返回Unit类型。 以下是函数定义的实例： 1234567891011121314151617&#x2F;&#x2F; 没有参数的函数，可以省略去括号和返回值类型（返回值类型可以是Unit）def hello1(): Unit &#x3D; print(&quot;Hello!&quot;)def hello2 &#x3D; print">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chisel学习笔记（十一）：函数式编程">
+<meta property="og:url" content="http://hubohan.space/2020/08/25/Chisel_Note_11/index.html">
+<meta property="og:site_name" content="Hu&#39;s Blog">
+<meta property="og:description" content="Scala中的函数式编程函数，以多个值为输入，以单个值为输出。输入值通常叫做参数。如果函数没有输出，则返回Unit类型。 以下是函数定义的实例： 1234567891011121314151617&#x2F;&#x2F; 没有参数的函数，可以省略去括号和返回值类型（返回值类型可以是Unit）def hello1(): Unit &#x3D; print(&quot;Hello!&quot;)def hello2 &#x3D; print">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200825221618486.png">
+<meta property="article:published_time" content="2020-08-25T11:00:00.000Z">
+<meta property="article:modified_time" content="2020-12-07T03:08:44.471Z">
+<meta property="article:author" content="胡博涵">
+<meta property="article:tag" content="Chisel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200825221618486.png">
+
+<link rel="canonical" href="http://hubohan.space/2020/08/25/Chisel_Note_11/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Chisel学习笔记（十一）：函数式编程 | Hu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <main class="main">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Hu's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Who's blog?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Scala%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">Scala中的函数式编程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E6%98%AF%E4%B8%80%E7%AD%89%E5%85%AC%E6%B0%91"><span class="nav-number">1.1.</span> <span class="nav-text">函数是一等公民</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9A%E4%B9%89%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">1.2.</span> <span class="nav-text">定义高阶函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%BD%E6%95%B0VS%E5%AF%B9%E8%B1%A1"><span class="nav-number">1.3.</span> <span class="nav-text">函数VS对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8C%BF%E5%90%8D%E5%87%BD%E6%95%B0"><span class="nav-number">1.4.</span> <span class="nav-text">匿名函数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Chisel%E4%B8%AD%E7%9A%84%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B"><span class="nav-number">2.</span> <span class="nav-text">Chisel中的函数式编程</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%EF%BC%9AFIR"><span class="nav-number">2.1.</span> <span class="nav-text">实例：FIR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B%EF%BC%9A%E6%84%9F%E7%9F%A5%E6%9C%BA"><span class="nav-number">2.2.</span> <span class="nav-text">实例：感知机</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">胡博涵</p>
+  <div class="site-description" itemprop="description">CS Undergraduate at Harbin Institute of Technology, Shenzhen</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Bohan-Hu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Bohan-Hu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubohancser@gmail.com" title="E-Mail → mailto:hubohancser@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </header>
+
+      
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+      <div class="main-inner">
+        
+
+        <div class="content post posts-expand">
+          
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/25/Chisel_Note_11/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chisel学习笔记（十一）：函数式编程
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-25 19:00:00" itemprop="dateCreated datePublished" datetime="2020-08-25T19:00:00+08:00">2020-08-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h2 id="Scala中的函数式编程"><a href="#Scala中的函数式编程" class="headerlink" title="Scala中的函数式编程"></a>Scala中的函数式编程</h2><p>函数，以多个值为输入，以单个值为输出。输入值通常叫做参数。如果函数没有输出，则返回<code>Unit</code>类型。</p>
+<p>以下是函数定义的实例：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 没有参数的函数，可以省略去括号和返回值类型（返回值类型可以是Unit）</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello1</span></span>(): <span class="type">Unit</span> = print(<span class="string">&quot;Hello!&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hello2</span> </span>= print(<span class="string">&quot;Hello again!&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Math operation: one input and one output.</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">times2</span></span>(x: <span class="type">Int</span>): <span class="type">Int</span> = <span class="number">2</span> * x</span><br><span class="line"></span><br><span class="line"><span class="comment">// 参数可以有默认值，并且建议写明返回值类型</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">timesN</span></span>(x: <span class="type">Int</span>, n: <span class="type">Int</span> = <span class="number">2</span>) = n * x</span><br><span class="line"></span><br><span class="line"><span class="comment">// Call the functions listed above.</span></span><br><span class="line">hello1()    <span class="comment">// 没有参数，可以使用括号，也可以省略</span></span><br><span class="line">hello2        <span class="comment">// 调用的时候，如果原来定义时没有括号，则也不可以使用括号</span></span><br><span class="line">times2(<span class="number">4</span>)</span><br><span class="line">timesN(<span class="number">4</span>)         <span class="comment">// no need to specify n to use the default value</span></span><br><span class="line">timesN(<span class="number">4</span>, <span class="number">3</span>)      <span class="comment">// argument order is the same as the order where the function was defined</span></span><br><span class="line">timesN(n=<span class="number">7</span>, x=<span class="number">2</span>)  <span class="comment">// arguments may be reordered and assigned to explicitly</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="函数是一等公民"><a href="#函数是一等公民" class="headerlink" title="函数是一等公民"></a>函数是一等公民</h3><p><strong>函数</strong>可以被赋值给某个<code>val</code>，并且传递给类、对象，或者作为某个参数传递给其他函数。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 常规的函数定义</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">plus1funct</span></span>(x: <span class="type">Int</span>): <span class="type">Int</span> = x + <span class="number">1</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">times2funct</span></span>(x: <span class="type">Int</span>): <span class="type">Int</span> = x * <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数字面量赋值给某个Val</span></span><br><span class="line"><span class="keyword">val</span> plus1val: <span class="type">Int</span> =&gt; <span class="type">Int</span> = x =&gt; x + <span class="number">1</span></span><br><span class="line"><span class="keyword">val</span> times2val = (x: <span class="type">Int</span>) =&gt; x * <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Calling both looks the same.</span></span><br><span class="line">plus1funct(<span class="number">4</span>)</span><br><span class="line">plus1val(<span class="number">4</span>)</span><br><span class="line">plus1funct(x=<span class="number">4</span>)</span><br><span class="line"><span class="comment">//plus1val(x=4) // 不可以这样调用</span></span><br></pre></td></tr></table></figure>
+
+<p>为什么需要有<code>val</code>定义的函数这种操作呢？使用<code>val</code>定义函数，那么函数就和往常的变量一样，可以在各个函数之间作为参数传递。我们甚至可以自己定义高阶函数。</p>
+<h3 id="定义高阶函数"><a href="#定义高阶函数" class="headerlink" title="定义高阶函数"></a>定义高阶函数</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 首先定义自己的函数</span></span><br><span class="line"><span class="keyword">val</span> plus1 = (x: <span class="type">Int</span>) =&gt; x + <span class="number">1</span></span><br><span class="line"><span class="keyword">val</span> times2 = (x: <span class="type">Int</span>) =&gt; x * <span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 传递给Map，在List上面调用</span></span><br><span class="line"><span class="keyword">val</span> myList = <span class="type">List</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">5</span>, <span class="number">9</span>)</span><br><span class="line"><span class="keyword">val</span> myListPlus = myList.map(plus1)</span><br><span class="line"><span class="keyword">val</span> myListTimes = myList.map(times2)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个可以进行递归计算的函数</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">opN</span></span>(x: <span class="type">Int</span>, n: <span class="type">Int</span>, op: <span class="type">Int</span> =&gt; <span class="type">Int</span>): <span class="type">Int</span> = &#123;</span><br><span class="line">  <span class="keyword">if</span> (n &lt;= <span class="number">0</span>) &#123; x &#125;</span><br><span class="line">  <span class="keyword">else</span> &#123; opN(op(x), n<span class="number">-1</span>, op) &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">opN(<span class="number">7</span>, <span class="number">3</span>, plus1)</span><br><span class="line">opN(<span class="number">7</span>, <span class="number">3</span>, times2)</span><br></pre></td></tr></table></figure>
+
+<p>我们注意到，定义的<code>opN</code>函数，接收一个函数参数<code>op</code>。</p>
+<h3 id="函数VS对象"><a href="#函数VS对象" class="headerlink" title="函数VS对象"></a>函数VS对象</h3><p>有时候，我们会看到，使用一些不带参数的函数，会造成一定的误会。</p>
+<p><strong><code>val</code>在定义的时候就已经求值，而<code>def</code>需要在调用的时候才会被求值。</strong></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> scala.util.<span class="type">Random</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// x和y都是Random函数，但是x在定义的时候，其已经被求值了，而y是一个函数，每次对他进行引用的时候，都会重新求值</span></span><br><span class="line"><span class="keyword">val</span> x = <span class="type">Random</span>.nextInt</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">y</span> </span>= <span class="type">Random</span>.nextInt</span><br><span class="line"></span><br><span class="line"><span class="comment">// x已经被求值了，所以不会再发生改变了</span></span><br><span class="line">println(<span class="string">s&quot;x = <span class="subst">$x</span>&quot;</span>)</span><br><span class="line">println(<span class="string">s&quot;x = <span class="subst">$x</span>&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// y的输出会和上次的不一样，因为调用的时候被重新进行了求值</span></span><br><span class="line">println(<span class="string">s&quot;y = <span class="subst">$y</span>&quot;</span>)</span><br><span class="line">println(<span class="string">s&quot;y = <span class="subst">$y</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="匿名函数"><a href="#匿名函数" class="headerlink" title="匿名函数"></a>匿名函数</h3><p>我们仅仅使用一次这个函数，所以这个函数可以不用赋值给<code>val</code>，当作一个字面量（如C中的常量）来进行使用。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> myList = <span class="type">List</span>(<span class="number">5</span>, <span class="number">6</span>, <span class="number">7</span>, <span class="number">8</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将列表中的每一个值都加1</span></span><br><span class="line">myList.map( (x:<span class="type">Int</span>) =&gt; x + <span class="number">1</span> )</span><br><span class="line">myList.map(_ + <span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 匿名函数中可以使用case，可以进行模式匹配</span></span><br><span class="line"><span class="keyword">val</span> myAnyList = <span class="type">List</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="string">&quot;3&quot;</span>, <span class="number">4</span>L, myList)</span><br><span class="line">myAnyList.map &#123;</span><br><span class="line">  <span class="keyword">case</span> (_:<span class="type">Int</span>|_:<span class="type">Long</span>) =&gt; <span class="string">&quot;Number&quot;</span></span><br><span class="line">  <span class="keyword">case</span> _:<span class="type">String</span> =&gt; <span class="string">&quot;String&quot;</span></span><br><span class="line">  <span class="keyword">case</span> _ =&gt; <span class="string">&quot;error&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="Chisel中的函数式编程"><a href="#Chisel中的函数式编程" class="headerlink" title="Chisel中的函数式编程"></a>Chisel中的函数式编程</h2><h3 id="实例：FIR"><a href="#实例：FIR" class="headerlink" title="实例：FIR"></a>实例：FIR</h3><p>我们可以看一个在Chisel中使用函数式编程的例子，还是以刚才的FIR为例。</p>
+<p>之前的所有<code>b_i</code>全部都是以固定参数的形式传入，这次，我们传入一个能够计算参数的函数。这个计算函数以窗口长度和位宽为参数，产生一个<code>b_i</code>的参数列表。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// get some math functions</span></span><br><span class="line"><span class="keyword">import</span> scala.math.&#123;abs, round, cos, <span class="type">Pi</span>, pow&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// simple triangular window</span></span><br><span class="line"><span class="comment">// 这个语法是先声明函数的类型，然后用&#x27;=’来用一个函数初始化val</span></span><br><span class="line"><span class="keyword">val</span> <span class="type">TriangularWindow</span>: (<span class="type">Int</span>, <span class="type">Int</span>) =&gt; <span class="type">Seq</span>[<span class="type">Int</span>] = (length, bitwidth) =&gt; &#123;</span><br><span class="line">  <span class="keyword">val</span> raw_coeffs = (<span class="number">0</span> until length).map( (x:<span class="type">Int</span>) =&gt; <span class="number">1</span>-abs((x.toDouble-(length<span class="number">-1</span>)/<span class="number">2.0</span>)/((length<span class="number">-1</span>)/<span class="number">2.0</span>)) )</span><br><span class="line">  <span class="keyword">val</span> scaled_coeffs = raw_coeffs.map( (x: <span class="type">Double</span>) =&gt; round(x * pow(<span class="number">2</span>, bitwidth)).toInt)</span><br><span class="line">  scaled_coeffs</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Hamming window</span></span><br><span class="line"><span class="keyword">val</span> <span class="type">HammingWindow</span>: (<span class="type">Int</span>, <span class="type">Int</span>) =&gt; <span class="type">Seq</span>[<span class="type">Int</span>] = (length, bitwidth) =&gt; &#123;</span><br><span class="line">  <span class="keyword">val</span> raw_coeffs = (<span class="number">0</span> until length).map( (x: <span class="type">Int</span>) =&gt; <span class="number">0.54</span> - <span class="number">0.46</span>*cos(<span class="number">2</span>*<span class="type">Pi</span>*x/(length<span class="number">-1</span>)))</span><br><span class="line">  <span class="keyword">val</span> scaled_coeffs = raw_coeffs.map( (x: <span class="type">Double</span>) =&gt; round(x * pow(<span class="number">2</span>, bitwidth)).toInt)</span><br><span class="line">  scaled_coeffs</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后就可以使用它来进行生成了：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// our FIR has parameterized window length, IO bitwidth, and windowing function</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyFir</span>(<span class="params">length: <span class="type">Int</span>, bitwidth: <span class="type">Int</span>, window: (<span class="type">Int</span>, <span class="type">Int</span></span>) <span class="title">=&gt;</span> <span class="title">Seq</span>[<span class="type">Int</span>]) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in = <span class="type">Input</span>(<span class="type">UInt</span>(bitwidth.<span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span>((bitwidth*<span class="number">2</span>+length<span class="number">-1</span>).<span class="type">W</span>)) <span class="comment">// expect bit growth, conservative but lazy</span></span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将所有的参数转换成UInt硬件节点，宽度自动推断</span></span><br><span class="line">  <span class="keyword">val</span> coeffs = window(length, bitwidth).map(_.<span class="type">U</span>)</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// 注意：我们不使用Vec，因为不需要按照索引访问，我们只需要在编译阶段把这些寄存器连接到正确的位置</span></span><br><span class="line">  <span class="keyword">val</span> delays = <span class="type">Seq</span>.fill(length)(<span class="type">Wire</span>(<span class="type">UInt</span>(bitwidth.<span class="type">W</span>))).scan(io.in)( (prev: <span class="type">UInt</span>, next: <span class="type">UInt</span>) =&gt; &#123;</span><br><span class="line">    next := <span class="type">RegNext</span>(prev)</span><br><span class="line">    next</span><br><span class="line">  &#125;)</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// multiply, putting result in &quot;mults&quot;</span></span><br><span class="line">  <span class="keyword">val</span> mults = delays.zip(coeffs).map&#123; <span class="keyword">case</span>(delay: <span class="type">UInt</span>, coeff: <span class="type">UInt</span>) =&gt; delay * coeff &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">// add up multiplier outputs with bit growth</span></span><br><span class="line">  <span class="keyword">val</span> result = mults.reduce(_+&amp;_)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// connect output</span></span><br><span class="line">  io.out := result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个实现和之前的简洁实现差不多，只是将连续的<code>map</code>,<code>reduce</code>操作拆分开了。</p>
+<h3 id="实例：感知机"><a href="#实例：感知机" class="headerlink" title="实例：感知机"></a>实例：感知机</h3><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200825221618486.png" alt="image-20200825221618486"></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Neuron</span>(<span class="params">inputs: <span class="type">Int</span>, act: <span class="type">FixedPoint</span> =&gt; <span class="type">FixedPoint</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in      = <span class="type">Input</span>(<span class="type">Vec</span>(inputs, <span class="type">FixedPoint</span>(<span class="number">16.</span><span class="type">W</span>, <span class="number">8.</span><span class="type">BP</span>)))</span><br><span class="line">    <span class="keyword">val</span> weights = <span class="type">Input</span>(<span class="type">Vec</span>(inputs, <span class="type">FixedPoint</span>(<span class="number">16.</span><span class="type">W</span>, <span class="number">8.</span><span class="type">BP</span>)))</span><br><span class="line">    <span class="keyword">val</span> out     = <span class="type">Output</span>(<span class="type">FixedPoint</span>(<span class="number">16.</span><span class="type">W</span>, <span class="number">8.</span><span class="type">BP</span>))</span><br><span class="line">  &#125;)</span><br><span class="line">  io.out := ( io.in zip io.weights ).map( <span class="keyword">case</span>(a,b) =&gt; a*b ).reduce(_+_)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Chisel/" rel="tag"># Chisel</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/25/Chisel_Note_10/" rel="prev" title="Chisel学习笔记（十）：高阶函数">
+      <i class="fa fa-chevron-left"></i> Chisel学习笔记（十）：高阶函数
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/25/Chisel_Note_12/" rel="next" title="Chisel学习笔记（十二）：面向对象">
+      Chisel学习笔记（十二）：面向对象 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+        </div>
+        
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胡博涵</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

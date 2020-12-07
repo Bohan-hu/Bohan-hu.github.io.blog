@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hubohan.space","root":"/","scheme":"Pisces","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
+  </script>
+
+  <meta name="description" content="Part A: 组合逻辑组合逻辑描述在Chisel中，组合逻辑电路最简单的表示方法是将组合逻辑赋值给一个val，并可以通过这个val引用。 1val e &#x3D; ( a &amp; b ) | c  以上表达式右侧的逻辑被命名为e，对于val的重新赋值是不允许的。 Chisel当然也支持使用条件语句生成的组合逻辑。这样的电路以Wire定义（在Verilog中，我们以Reg定义，在always@(*)块">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chisel学习笔记（五）：组合逻辑与时序逻辑描述">
+<meta property="og:url" content="http://hubohan.space/2020/08/23/Chisel_Note_5/index.html">
+<meta property="og:site_name" content="Hu&#39;s Blog">
+<meta property="og:description" content="Part A: 组合逻辑组合逻辑描述在Chisel中，组合逻辑电路最简单的表示方法是将组合逻辑赋值给一个val，并可以通过这个val引用。 1val e &#x3D; ( a &amp; b ) | c  以上表达式右侧的逻辑被命名为e，对于val的重新赋值是不允许的。 Chisel当然也支持使用条件语句生成的组合逻辑。这样的电路以Wire定义（在Verilog中，我们以Reg定义，在always@(*)块">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823174343426.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823183445450.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823191133656.png">
+<meta property="article:published_time" content="2020-08-23T09:00:00.000Z">
+<meta property="article:modified_time" content="2020-12-07T03:08:44.471Z">
+<meta property="article:author" content="胡博涵">
+<meta property="article:tag" content="Chisel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823174343426.png">
+
+<link rel="canonical" href="http://hubohan.space/2020/08/23/Chisel_Note_5/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Chisel学习笔记（五）：组合逻辑与时序逻辑描述 | Hu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <main class="main">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Hu's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Who's blog?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Part-A-%E7%BB%84%E5%90%88%E9%80%BB%E8%BE%91"><span class="nav-number">1.</span> <span class="nav-text">Part A: 组合逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%84%E5%90%88%E9%80%BB%E8%BE%91%E6%8F%8F%E8%BF%B0"><span class="nav-number">1.1.</span> <span class="nav-text">组合逻辑描述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Example-Decoder"><span class="nav-number">1.2.</span> <span class="nav-text">Example: Decoder</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Part-B%EF%BC%9A-%E6%97%B6%E5%BA%8F%E9%80%BB%E8%BE%91"><span class="nav-number">2.</span> <span class="nav-text">Part B： 时序逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E5%BA%8F%E9%80%BB%E8%BE%91%E6%8F%8F%E8%BF%B0%EF%BC%9A%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.1.</span> <span class="nav-text">时序逻辑描述：寄存器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Example-Counter"><span class="nav-number">2.2.</span> <span class="nav-text">Example: Counter</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Counter%E4%BD%BF%E7%94%A8%E5%AE%9E%E4%BE%8B"><span class="nav-number">2.2.1.</span> <span class="nav-text">Counter使用实例</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E4%BC%98%E5%8C%96%E7%9A%84%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="nav-number">2.2.2.</span> <span class="nav-text">更优化的计数器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Example-PWM"><span class="nav-number">2.3.</span> <span class="nav-text">Example: PWM</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Example-%E7%A7%BB%E4%BD%8D%E5%AF%84%E5%AD%98%E5%99%A8"><span class="nav-number">2.3.1.</span> <span class="nav-text">Example: 移位寄存器</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AD%98%E5%82%A8%E5%99%A8"><span class="nav-number">2.4.</span> <span class="nav-text">存储器</span></a></li></ol></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">胡博涵</p>
+  <div class="site-description" itemprop="description">CS Undergraduate at Harbin Institute of Technology, Shenzhen</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Bohan-Hu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Bohan-Hu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubohancser@gmail.com" title="E-Mail → mailto:hubohancser@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </header>
+
+      
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+      <div class="main-inner">
+        
+
+        <div class="content post posts-expand">
+          
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/23/Chisel_Note_5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chisel学习笔记（五）：组合逻辑与时序逻辑描述
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-23 17:00:00" itemprop="dateCreated datePublished" datetime="2020-08-23T17:00:00+08:00">2020-08-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <h1 id="Part-A-组合逻辑"><a href="#Part-A-组合逻辑" class="headerlink" title="Part A: 组合逻辑"></a>Part A: 组合逻辑</h1><h2 id="组合逻辑描述"><a href="#组合逻辑描述" class="headerlink" title="组合逻辑描述"></a>组合逻辑描述</h2><p>在Chisel中，组合逻辑电路最简单的表示方法是将组合逻辑赋值给一个<code>val</code>，并可以通过这个<code>val</code>引用。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> e = ( a &amp; b ) | c</span><br></pre></td></tr></table></figure>
+
+<p>以上表达式右侧的逻辑被<strong>命名</strong>为<code>e</code>，对于<code>val</code>的重新赋值是不允许的。</p>
+<p>Chisel当然也支持使用条件语句生成的组合逻辑。这样的电路以<code>Wire</code>定义（在Verilog中，我们以Reg定义，在<code>always@(*)</code>块中对其赋值）。此后，我们使用条件操作，例如<code>when</code>，来描述这个电路的行为。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> w = <span class="type">Wire</span>(<span class="type">UInt</span>())</span><br><span class="line">w := <span class="number">0.</span><span class="type">U</span></span><br><span class="line">when(cond) &#123;</span><br><span class="line">    w := <span class="number">3.</span><span class="type">U</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>when</code>语句还可以后接<code>otherwise</code>语句。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">when (cond) &#123;</span><br><span class="line">    w :&#x3D; 1.U</span><br><span class="line">&#125; otherwise &#123;</span><br><span class="line">    w :&#x3D; 2.U</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还可以插入<code>elsewhen</code>，注意代码中的”.”是必要的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">when (cond) &#123;</span><br><span class="line">    w :&#x3D; 1.U</span><br><span class="line">&#125; .elsewhen(cond2) &#123;</span><br><span class="line">    w :&#x3D; 2.U</span><br><span class="line">&#125; otherwise &#123;</span><br><span class="line">    w :&#x3D; 3.U</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果<code>cond</code>仅仅依赖于一个信号，建议还是使用<code>switch</code>语句。</strong></p>
+<hr>
+<p>对于复杂的逻辑，我们应该对Wire赋予初值，以避免锁存器。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> w = <span class="type">WireDefault</span>(<span class="number">0.</span><span class="type">U</span>)</span><br><span class="line">when (cond) &#123;</span><br><span class="line">    w := <span class="number">3.</span><span class="type">U</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，Scala中的<code>if</code>,<code>else</code>是控制流代码，是用于控制生成硬件的条件的，并不能用来描述组合逻辑，也并不会生成硬件。</p>
+<h2 id="Example-Decoder"><a href="#Example-Decoder" class="headerlink" title="Example: Decoder"></a>Example: Decoder</h2><p>Decoder一般可以使用<code>switch</code>语句来进行描述。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chisel3.util._</span><br><span class="line"></span><br><span class="line">result := <span class="number">0.</span><span class="type">U</span></span><br><span class="line"></span><br><span class="line">switch(sel)    &#123;</span><br><span class="line">    is(<span class="number">0.</span><span class="type">U</span>) &#123; result := <span class="number">1.</span><span class="type">U</span> &#125;</span><br><span class="line">    is(<span class="number">1.</span><span class="type">U</span>) &#123; result := <span class="number">2.</span><span class="type">U</span> &#125;</span><br><span class="line">    is(<span class="number">2.</span><span class="type">U</span>) &#123; result := <span class="number">4.</span><span class="type">U</span> &#125;</span><br><span class="line">    is(<span class="number">3.</span><span class="type">U</span>) &#123; result := <span class="number">8.</span><span class="type">U</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：就算在<code>switch</code>里面列举了所有的可能，我们仍然需要给某个信号赋予初值，为了防止生成锁存器的可能，Chisel严禁使用不完备的赋值。</strong></p>
+<h1 id="Part-B：-时序逻辑"><a href="#Part-B：-时序逻辑" class="headerlink" title="Part B： 时序逻辑"></a>Part B： 时序逻辑</h1><h2 id="时序逻辑描述：寄存器"><a href="#时序逻辑描述：寄存器" class="headerlink" title="时序逻辑描述：寄存器"></a>时序逻辑描述：寄存器</h2><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823174343426.png" alt="image-20200823174343426"></p>
+<p>在Chisel中，上图寄存器可以被这样描述：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> q = <span class="type">RegNext</span>(d)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以注意到，这个寄存器并没有显式地声明时钟、声明复位，端口被默认的连接到了全局时钟上，注意：Chisel不支持异步复位。</p>
+<p>RegNext会自动根据输入信号推断寄存器的宽度。</p>
+<p>还可以使用以下的形式，声明一个寄存器，并赋值：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> q = <span class="type">Reg</span>(<span class="type">UInt</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">q := data_in</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>由于在Chisel中，并不存在阻塞赋值和非阻塞赋值，也不存在<code>always</code>块，所以难以某个赋值语句是在对寄存器赋值还是组合逻辑赋值。</p>
+<ul>
+<li><strong>推荐的命名规范是，寄存器信号以<code>Reg</code>结尾！</strong></li>
+<li>并且，在Scala推荐的命名规范中，建议采用<strong>驼峰命名法</strong>。</li>
+</ul>
+</li>
+<li><p>在声明寄存器时，还可以对寄存器指定初始值。</p>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> valReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">valReg := inVal</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>声明一个带使能的寄存器：</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> enableReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">when(enable) &#123;</span><br><span class="line">    enableReg := inVal</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>寄存器甚至可以在表达式中声明，甚至作为表达式的一个部分进行使用，但此时，这是一个匿名的寄存器：</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> risingEdge = din &amp; !<span class="type">RegNext</span>(din)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 此处有一个思考，之前使用<code>val</code>来定义某个逻辑，不管是寄存器也好，还是组合逻辑也好，本质上是对某个硬件节点进行命名操作。此处在表达式中使用RegNext，相当于创建了一个新的寄存器，并匿名地引用它的值，其用法和组合逻辑有点类似。</p>
+</blockquote>
+<h2 id="Example-Counter"><a href="#Example-Counter" class="headerlink" title="Example: Counter"></a>Example: Counter</h2><p>一个最简单的计数器：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> cntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">cntReg := cntReg + <span class="number">1.</span><span class="type">U</span></span><br><span class="line">when(cntReg === <span class="type">N</span>) &#123;</span><br><span class="line">    cntReg := <span class="number">0.</span><span class="type">U</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>或者，我们可以使用一个多选器来决定计数器的输入：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> cntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">cntReg := <span class="type">Mux</span>(cntReg === <span class="type">N</span>, <span class="number">0.</span><span class="type">U</span>, cntReg + <span class="number">1.</span><span class="type">U</span>)</span><br></pre></td></tr></table></figure>
+
+<p>再高层次地，我们使用一个计数器生成器：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">genCounter</span></span>(n: <span class="type">Int</span>) = &#123;</span><br><span class="line">    <span class="keyword">val</span> cntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    cntReg := <span class="type">Mux</span>(cntReg === n.<span class="type">U</span>, <span class="number">0.</span><span class="type">U</span>, cntReg + <span class="number">1.</span><span class="type">U</span>)</span><br><span class="line">    cntReg</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">val</span> cnt99 = genCounter(<span class="number">99</span>)</span><br></pre></td></tr></table></figure>
+
+<p>注意函数的最后一行，代表返回一个创建好的硬件节点。</p>
+<h3 id="Counter使用实例"><a href="#Counter使用实例" class="headerlink" title="Counter使用实例"></a>Counter使用实例</h3><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823183445450.png" alt="image-20200823183445450"></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// tick是一个三分频时钟，其占空比不为0.5</span></span><br><span class="line"><span class="keyword">val</span> tickCounterReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line"><span class="keyword">val</span> tick = tickCounterReg === (<span class="type">N</span><span class="number">-1</span>).<span class="type">U</span></span><br><span class="line"></span><br><span class="line">tickCounterReg := <span class="type">Mux</span>(tick, <span class="number">0</span>, tickCounterReg + <span class="number">1.</span><span class="type">U</span>)</span><br><span class="line"><span class="keyword">val</span> lowFreqCntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">when(tick) &#123;</span><br><span class="line">    lowFreqCntReg := lowFreqCntReg + <span class="number">1.</span><span class="type">U</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>tick</code>是一个占空比不为50%的时钟，控制一个更慢的计数器进行更新操作。</p>
+<h3 id="更优化的计数器"><a href="#更优化的计数器" class="headerlink" title="更优化的计数器"></a>更优化的计数器</h3><p>我们转变思路，将计数器转变为递减计数器。从N-1数到0，转变为N-2数到-1，计满的情况，仅需要看计数器最高位即可。</p>
+<h2 id="Example-PWM"><a href="#Example-PWM" class="headerlink" title="Example: PWM"></a>Example: PWM</h2><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823191133656.png" alt="image-20200823191133656"></p>
+<p>PWM调制，时钟占空比随着时间的变化而变化。</p>
+<p>以下的代码可以生成占空比为0.7的PWM波形：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pwm</span></span>(nrCycles: <span class="type">Int</span>, din: <span class="type">UInt</span>) = &#123;</span><br><span class="line">    <span class="keyword">val</span> cntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(unsignedBitLength(nrCycles<span class="number">-1</span>).<span class="type">W</span>))        <span class="comment">// 自动计算宽度</span></span><br><span class="line">    cntReg := <span class="type">Mux</span>(cntReg === (nrCycles<span class="number">-1</span>).<span class="type">U</span>, <span class="number">0.</span><span class="type">U</span>, cntReg + <span class="number">1.</span><span class="type">U</span>)        <span class="comment">// 普通的循环计数器</span></span><br><span class="line">    din &gt; cntReg    <span class="comment">// 当din &gt; cntReg的时候为高，din即为输出从高到低的交界点</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> pwm_out = (<span class="number">10</span>, <span class="number">3.</span><span class="type">U</span>)</span><br></pre></td></tr></table></figure>
+
+<p>上述代码即为一个可复用的、轻量的代码。它接收两个参数，一个是时钟周期的数量（<code>nrCycles</code>），另一个是给出了脉冲宽度（<code>din</code>）。</p>
+<p><strong>注意：函数的最后一行是返回值。</strong></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> <span class="type">FREQ</span> = <span class="number">100000000</span> <span class="comment">// a 100 MHz clock input</span></span><br><span class="line"><span class="keyword">val</span> <span class="type">MAX</span> = <span class="type">FREQ</span> /<span class="number">1000</span> <span class="comment">// 1 kHz</span></span><br><span class="line"><span class="keyword">val</span> modulationReg = <span class="type">RegInit</span> (<span class="number">0.</span><span class="type">U</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line"><span class="keyword">val</span> upReg = <span class="type">RegInit</span>(<span class="literal">true</span>.<span class="type">B</span>)</span><br><span class="line">when ( modulationReg &lt; <span class="type">FREQ</span>.<span class="type">U</span> &amp;&amp; upReg) &#123;</span><br><span class="line">    modulationReg := modulationReg + <span class="number">1.</span><span class="type">U</span></span><br><span class="line">&#125; .elsewhen ( modulationReg === <span class="type">FREQ</span>.<span class="type">U</span> &amp;&amp; upReg) &#123;</span><br><span class="line">    upReg := <span class="literal">false</span>.<span class="type">B</span>                                <span class="comment">// 计数加模式</span></span><br><span class="line">&#125; .elsewhen ( modulationReg &gt; <span class="number">0.</span><span class="type">U</span> &amp;&amp; !upReg) &#123;</span><br><span class="line">    modulationReg := modulationReg - <span class="number">1.</span><span class="type">U</span>            <span class="comment">// 计数减模式</span></span><br><span class="line">&#125; . otherwise &#123; <span class="comment">// 0</span></span><br><span class="line">    upReg := <span class="literal">true</span>.<span class="type">B</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// divide modReg by 1024 (about the 1 kHz)</span></span><br><span class="line"><span class="keyword">val</span> sig = pwm(<span class="type">MAX</span> , modulationReg &gt;&gt; <span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Example-移位寄存器"><a href="#Example-移位寄存器" class="headerlink" title="Example: 移位寄存器"></a>Example: 移位寄存器</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> shiftReg = <span class="type">Reg</span>(<span class="type">UInt</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">shiftReg := <span class="type">Cat</span>(shiftReg(<span class="number">2</span>,<span class="number">0</span>), din)</span><br><span class="line"><span class="keyword">val</span> dout = shiftReg(<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>Cat</code>用于串接输入输出，对于Reg和Wire的位选，使用括号，也就是Scala中的<code>Apply()</code>方法。</p>
+<h2 id="存储器"><a href="#存储器" class="headerlink" title="存储器"></a>存储器</h2><p>存储器可以用寄存器阵列进行构建，也可以使用SRAM。在ASIC设计中，使用<code>memory compiler</code>进行设计；在FPGA设计中，片上拥有block RAM资源。</p>
+<p>Chisel提供了存储器构建器<code>SyncReadMem</code>，对于同时读写一个地址，Chisel将其定义为未定义的行为，此时，我们可以手动进行旁路。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MemoryWithForwarding</span>(<span class="params"></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;</span><br><span class="line">        <span class="keyword">val</span> rdAddr = <span class="type">Input</span>(<span class="type">UInut</span>(<span class="number">10.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> rdData = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> wrEna = <span class="type">Input</span>(<span class="type">Bool</span>())</span><br><span class="line">        <span class="keyword">val</span> wrData = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> wrAddr = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">10.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">val</span> mem = <span class="type">SyncReadMem</span>(<span class="number">1024</span>,<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">val</span> wrDataReg = <span class="type">RegNext</span>(io.wrData)</span><br><span class="line">    <span class="keyword">val</span> doForwardingReg = <span class="type">RegNext</span>(io.wAddr === io.rdAddr &amp;&amp; io.wrEna)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">val</span> memData = mem.read(io.rdAddr)</span><br><span class="line">    </span><br><span class="line">    when(io.wrEna) &#123;</span><br><span class="line">        mem.write(io.wrAddr, io.wrData)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    io.rdData := <span class="type">Mux</span>(doForwardingReg, wrDataReg, memData)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Chisel也提供了<code>Mem</code>，异步读，同步写，类似于FPGA中的<code>distributed RAM</code>。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Chisel/" rel="tag"># Chisel</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/23/Chisel_Note_4/" rel="prev" title="Chisel学习笔记（四）：组件">
+      <i class="fa fa-chevron-left"></i> Chisel学习笔记（四）：组件
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/23/Chisel_Note_6/" rel="next" title="Chisel学习笔记（六）：有限状态机">
+      Chisel学习笔记（六）：有限状态机 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+        </div>
+        
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胡博涵</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

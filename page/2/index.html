@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hubohan.space","root":"/","scheme":"Pisces","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
+  </script>
+
+  <meta name="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Hu&#39;s Blog">
+<meta property="og:url" content="http://hubohan.space/page/2/index.html">
+<meta property="og:site_name" content="Hu&#39;s Blog">
+<meta property="og:description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="胡博涵">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://hubohan.space/page/2/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Hu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <main class="main">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Hu's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Who's blog?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">胡博涵</p>
+  <div class="site-description" itemprop="description">CS Undergraduate at Harbin Institute of Technology, Shenzhen</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Bohan-Hu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Bohan-Hu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubohancser@gmail.com" title="E-Mail → mailto:hubohancser@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </header>
+
+      
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+      <div class="main-inner">
+        
+
+        <div class="content index posts-expand">
+          
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/23/Chisel_Note_6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/23/Chisel_Note_6/" class="post-title-link" itemprop="url">Chisel学习笔记（六）：有限状态机</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-23 19:00:00" itemprop="dateCreated datePublished" datetime="2020-08-23T19:00:00+08:00">2020-08-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="Moore机编码风格"><a href="#Moore机编码风格" class="headerlink" title="Moore机编码风格"></a>Moore机编码风格</h2><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823220700155.png" alt="image-20200823220700155"></p>
+<p>考虑以上状态机。</p>
+<p>我们使用Chisel中的<code>Enum</code>来表示状态，使用<code>switch</code>来描述状态转移。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chisel3._</span><br><span class="line"><span class="keyword">import</span> chisel3.util._</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimpleFsm</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> badEvent = <span class="type">Input</span>(<span class="type">Bool</span>())</span><br><span class="line">        <span class="keyword">val</span> clear = <span class="type">Input</span>(<span class="type">Bool</span>())</span><br><span class="line">        <span class="keyword">val</span> ringBell = <span class="type">Output</span>(<span class="type">Bool</span>())</span><br><span class="line">    &#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">val</span> green :: orange :: red :: <span class="type">Nil</span> = <span class="type">Enum</span>(<span class="number">3</span>)        <span class="comment">// Enum的参数是状态的数量</span></span><br><span class="line">    <span class="keyword">val</span> stateReg = <span class="type">RegInit</span>(green)                    <span class="comment">// 使用状态去初始化Reg</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 状态转移逻辑</span></span><br><span class="line">    switch(stateReg) &#123;</span><br><span class="line">        is(green) &#123;</span><br><span class="line">            when(io.badEvent) &#123;</span><br><span class="line">                stateReg := orange</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        is(orange) &#123;</span><br><span class="line">            when(io.badEvent) &#123;</span><br><span class="line">                stateReg := red</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        is(red) &#123;</span><br><span class="line">            when(io.clear) &#123;</span><br><span class="line">                stateReg := green</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 输出逻辑</span></span><br><span class="line">    io.ringBell := stateReg === red</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>需要注意到，和Verilog不同的是，在实现状态机时，我们并没有在代码中引入<code>next_state</code>这个信号，也就是说，不同于我们在Verilog中描述的三段式/二段式状态机。</p>
+<p>其原因大抵是因为，Verilog不允许在同一个过程块中，对组合逻辑和时序逻辑进行同时的赋值更新，而Chisel是允许的。</p>
+<p>在后面的Mealy机编码中，我们可以看到这样实现的好处。</p>
+</blockquote>
+<h2 id="Mealy机编码风格"><a href="#Mealy机编码风格" class="headerlink" title="Mealy机编码风格"></a>Mealy机编码风格</h2><p>一个最简单的上升沿检测机制，可以使用一行Chisel代码实现：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> risingEdge = din &amp; !<span class="type">RegNext</span>(din)</span><br></pre></td></tr></table></figure>
+
+<p>其综合出的电路如图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823223351935.png" alt="image-20200823223351935"></p>
+<p>对于一个上升沿检测，如果我们使用状态机进行表示，其状态转移图如图所示：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823223610841.png" alt="image-20200823223610841"></p>
+<p>由于是Mealy状态机，所以状态机的输出也和输入有关。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chisel3._</span><br><span class="line"><span class="keyword">import</span> chisel3.util._</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">RisingFsm</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;</span><br><span class="line">        <span class="keyword">val</span> din = <span class="type">Input</span>(<span class="type">Bool</span>())</span><br><span class="line">        <span class="keyword">val</span> risingEdge = <span class="type">Output</span>(<span class="type">Bool</span>())</span><br><span class="line">    &#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">val</span> zero :: one :: <span class="type">Nil</span> = <span class="type">Enum</span>(<span class="number">2</span>)</span><br><span class="line">    <span class="keyword">val</span> stateReg = <span class="type">RegInit</span>(zero)</span><br><span class="line">    </span><br><span class="line">    io.risingEdge := <span class="literal">false</span>.<span class="type">B</span>    <span class="comment">// 组合逻辑输出必须有默认值</span></span><br><span class="line">    </span><br><span class="line">    switch (stateReg) &#123;</span><br><span class="line">        is(zero) &#123;</span><br><span class="line">            when(io.din) &#123;    </span><br><span class="line">                stateReg := one</span><br><span class="line">                io.risingEdge := <span class="literal">true</span>.<span class="type">B</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        is(one) &#123;</span><br><span class="line">            when(!io.din) &#123;</span><br><span class="line">                stateReg := zero</span><br><span class="line">                io.risingEdge := <span class="literal">false</span>.<span class="type">B</span></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在上述代码中，我们可以看到，和Verilog编码风格完全不同，时序逻辑和组合逻辑在同一个Block（块）中进行了赋值，组合逻辑将立即发生跳变，而时序逻辑将在下一个时钟上升沿更新，刚刚从Verilog转过来的设计者可能不太适应这种风格。</p>
+<p>或许我们应该转变思路，应该将 <code>stateReg := one</code>这样的代码看作是<strong>次态转移逻辑</strong>，而不是<strong>对现态寄存器的更新</strong>，此时：</p>
+<p>猜测这种写法的设计哲学是，将<strong>次态转移和输出逻辑</strong>写在了同一个块中，方便维护。</p>
+</blockquote>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/23/Chisel_Note_5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/23/Chisel_Note_5/" class="post-title-link" itemprop="url">Chisel学习笔记（五）：组合逻辑与时序逻辑描述</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-23 17:00:00" itemprop="dateCreated datePublished" datetime="2020-08-23T17:00:00+08:00">2020-08-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h1 id="Part-A-组合逻辑"><a href="#Part-A-组合逻辑" class="headerlink" title="Part A: 组合逻辑"></a>Part A: 组合逻辑</h1><h2 id="组合逻辑描述"><a href="#组合逻辑描述" class="headerlink" title="组合逻辑描述"></a>组合逻辑描述</h2><p>在Chisel中，组合逻辑电路最简单的表示方法是将组合逻辑赋值给一个<code>val</code>，并可以通过这个<code>val</code>引用。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> e = ( a &amp; b ) | c</span><br></pre></td></tr></table></figure>
+
+<p>以上表达式右侧的逻辑被<strong>命名</strong>为<code>e</code>，对于<code>val</code>的重新赋值是不允许的。</p>
+<p>Chisel当然也支持使用条件语句生成的组合逻辑。这样的电路以<code>Wire</code>定义（在Verilog中，我们以Reg定义，在<code>always@(*)</code>块中对其赋值）。此后，我们使用条件操作，例如<code>when</code>，来描述这个电路的行为。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> w = <span class="type">Wire</span>(<span class="type">UInt</span>())</span><br><span class="line">w := <span class="number">0.</span><span class="type">U</span></span><br><span class="line">when(cond) &#123;</span><br><span class="line">    w := <span class="number">3.</span><span class="type">U</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>when</code>语句还可以后接<code>otherwise</code>语句。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">when (cond) &#123;</span><br><span class="line">    w :&#x3D; 1.U</span><br><span class="line">&#125; otherwise &#123;</span><br><span class="line">    w :&#x3D; 2.U</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>还可以插入<code>elsewhen</code>，注意代码中的”.”是必要的。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">when (cond) &#123;</span><br><span class="line">    w :&#x3D; 1.U</span><br><span class="line">&#125; .elsewhen(cond2) &#123;</span><br><span class="line">    w :&#x3D; 2.U</span><br><span class="line">&#125; otherwise &#123;</span><br><span class="line">    w :&#x3D; 3.U</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>如果<code>cond</code>仅仅依赖于一个信号，建议还是使用<code>switch</code>语句。</strong></p>
+<hr>
+<p>对于复杂的逻辑，我们应该对Wire赋予初值，以避免锁存器。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> w = <span class="type">WireDefault</span>(<span class="number">0.</span><span class="type">U</span>)</span><br><span class="line">when (cond) &#123;</span><br><span class="line">    w := <span class="number">3.</span><span class="type">U</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，Scala中的<code>if</code>,<code>else</code>是控制流代码，是用于控制生成硬件的条件的，并不能用来描述组合逻辑，也并不会生成硬件。</p>
+<h2 id="Example-Decoder"><a href="#Example-Decoder" class="headerlink" title="Example: Decoder"></a>Example: Decoder</h2><p>Decoder一般可以使用<code>switch</code>语句来进行描述。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chisel3.util._</span><br><span class="line"></span><br><span class="line">result := <span class="number">0.</span><span class="type">U</span></span><br><span class="line"></span><br><span class="line">switch(sel)    &#123;</span><br><span class="line">    is(<span class="number">0.</span><span class="type">U</span>) &#123; result := <span class="number">1.</span><span class="type">U</span> &#125;</span><br><span class="line">    is(<span class="number">1.</span><span class="type">U</span>) &#123; result := <span class="number">2.</span><span class="type">U</span> &#125;</span><br><span class="line">    is(<span class="number">2.</span><span class="type">U</span>) &#123; result := <span class="number">4.</span><span class="type">U</span> &#125;</span><br><span class="line">    is(<span class="number">3.</span><span class="type">U</span>) &#123; result := <span class="number">8.</span><span class="type">U</span> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>注意：就算在<code>switch</code>里面列举了所有的可能，我们仍然需要给某个信号赋予初值，为了防止生成锁存器的可能，Chisel严禁使用不完备的赋值。</strong></p>
+<h1 id="Part-B：-时序逻辑"><a href="#Part-B：-时序逻辑" class="headerlink" title="Part B： 时序逻辑"></a>Part B： 时序逻辑</h1><h2 id="时序逻辑描述：寄存器"><a href="#时序逻辑描述：寄存器" class="headerlink" title="时序逻辑描述：寄存器"></a>时序逻辑描述：寄存器</h2><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823174343426.png" alt="image-20200823174343426"></p>
+<p>在Chisel中，上图寄存器可以被这样描述：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> q = <span class="type">RegNext</span>(d)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以注意到，这个寄存器并没有显式地声明时钟、声明复位，端口被默认的连接到了全局时钟上，注意：Chisel不支持异步复位。</p>
+<p>RegNext会自动根据输入信号推断寄存器的宽度。</p>
+<p>还可以使用以下的形式，声明一个寄存器，并赋值：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> q = <span class="type">Reg</span>(<span class="type">UInt</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">q := data_in</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>由于在Chisel中，并不存在阻塞赋值和非阻塞赋值，也不存在<code>always</code>块，所以难以某个赋值语句是在对寄存器赋值还是组合逻辑赋值。</p>
+<ul>
+<li><strong>推荐的命名规范是，寄存器信号以<code>Reg</code>结尾！</strong></li>
+<li>并且，在Scala推荐的命名规范中，建议采用<strong>驼峰命名法</strong>。</li>
+</ul>
+</li>
+<li><p>在声明寄存器时，还可以对寄存器指定初始值。</p>
+</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> valReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">valReg := inVal</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>声明一个带使能的寄存器：</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> enableReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">when(enable) &#123;</span><br><span class="line">    enableReg := inVal</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>寄存器甚至可以在表达式中声明，甚至作为表达式的一个部分进行使用，但此时，这是一个匿名的寄存器：</li>
+</ul>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> risingEdge = din &amp; !<span class="type">RegNext</span>(din)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 此处有一个思考，之前使用<code>val</code>来定义某个逻辑，不管是寄存器也好，还是组合逻辑也好，本质上是对某个硬件节点进行命名操作。此处在表达式中使用RegNext，相当于创建了一个新的寄存器，并匿名地引用它的值，其用法和组合逻辑有点类似。</p>
+</blockquote>
+<h2 id="Example-Counter"><a href="#Example-Counter" class="headerlink" title="Example: Counter"></a>Example: Counter</h2><p>一个最简单的计数器：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> cntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">cntReg := cntReg + <span class="number">1.</span><span class="type">U</span></span><br><span class="line">when(cntReg === <span class="type">N</span>) &#123;</span><br><span class="line">    cntReg := <span class="number">0.</span><span class="type">U</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>或者，我们可以使用一个多选器来决定计数器的输入：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> cntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">cntReg := <span class="type">Mux</span>(cntReg === <span class="type">N</span>, <span class="number">0.</span><span class="type">U</span>, cntReg + <span class="number">1.</span><span class="type">U</span>)</span><br></pre></td></tr></table></figure>
+
+<p>再高层次地，我们使用一个计数器生成器：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">genCounter</span></span>(n: <span class="type">Int</span>) = &#123;</span><br><span class="line">    <span class="keyword">val</span> cntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    cntReg := <span class="type">Mux</span>(cntReg === n.<span class="type">U</span>, <span class="number">0.</span><span class="type">U</span>, cntReg + <span class="number">1.</span><span class="type">U</span>)</span><br><span class="line">    cntReg</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">val</span> cnt99 = genCounter(<span class="number">99</span>)</span><br></pre></td></tr></table></figure>
+
+<p>注意函数的最后一行，代表返回一个创建好的硬件节点。</p>
+<h3 id="Counter使用实例"><a href="#Counter使用实例" class="headerlink" title="Counter使用实例"></a>Counter使用实例</h3><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823183445450.png" alt="image-20200823183445450"></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// tick是一个三分频时钟，其占空比不为0.5</span></span><br><span class="line"><span class="keyword">val</span> tickCounterReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line"><span class="keyword">val</span> tick = tickCounterReg === (<span class="type">N</span><span class="number">-1</span>).<span class="type">U</span></span><br><span class="line"></span><br><span class="line">tickCounterReg := <span class="type">Mux</span>(tick, <span class="number">0</span>, tickCounterReg + <span class="number">1.</span><span class="type">U</span>)</span><br><span class="line"><span class="keyword">val</span> lowFreqCntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">when(tick) &#123;</span><br><span class="line">    lowFreqCntReg := lowFreqCntReg + <span class="number">1.</span><span class="type">U</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中，<code>tick</code>是一个占空比不为50%的时钟，控制一个更慢的计数器进行更新操作。</p>
+<h3 id="更优化的计数器"><a href="#更优化的计数器" class="headerlink" title="更优化的计数器"></a>更优化的计数器</h3><p>我们转变思路，将计数器转变为递减计数器。从N-1数到0，转变为N-2数到-1，计满的情况，仅需要看计数器最高位即可。</p>
+<h2 id="Example-PWM"><a href="#Example-PWM" class="headerlink" title="Example: PWM"></a>Example: PWM</h2><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823191133656.png" alt="image-20200823191133656"></p>
+<p>PWM调制，时钟占空比随着时间的变化而变化。</p>
+<p>以下的代码可以生成占空比为0.7的PWM波形：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">pwm</span></span>(nrCycles: <span class="type">Int</span>, din: <span class="type">UInt</span>) = &#123;</span><br><span class="line">    <span class="keyword">val</span> cntReg = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(unsignedBitLength(nrCycles<span class="number">-1</span>).<span class="type">W</span>))        <span class="comment">// 自动计算宽度</span></span><br><span class="line">    cntReg := <span class="type">Mux</span>(cntReg === (nrCycles<span class="number">-1</span>).<span class="type">U</span>, <span class="number">0.</span><span class="type">U</span>, cntReg + <span class="number">1.</span><span class="type">U</span>)        <span class="comment">// 普通的循环计数器</span></span><br><span class="line">    din &gt; cntReg    <span class="comment">// 当din &gt; cntReg的时候为高，din即为输出从高到低的交界点</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> pwm_out = (<span class="number">10</span>, <span class="number">3.</span><span class="type">U</span>)</span><br></pre></td></tr></table></figure>
+
+<p>上述代码即为一个可复用的、轻量的代码。它接收两个参数，一个是时钟周期的数量（<code>nrCycles</code>），另一个是给出了脉冲宽度（<code>din</code>）。</p>
+<p><strong>注意：函数的最后一行是返回值。</strong></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> <span class="type">FREQ</span> = <span class="number">100000000</span> <span class="comment">// a 100 MHz clock input</span></span><br><span class="line"><span class="keyword">val</span> <span class="type">MAX</span> = <span class="type">FREQ</span> /<span class="number">1000</span> <span class="comment">// 1 kHz</span></span><br><span class="line"><span class="keyword">val</span> modulationReg = <span class="type">RegInit</span> (<span class="number">0.</span><span class="type">U</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line"><span class="keyword">val</span> upReg = <span class="type">RegInit</span>(<span class="literal">true</span>.<span class="type">B</span>)</span><br><span class="line">when ( modulationReg &lt; <span class="type">FREQ</span>.<span class="type">U</span> &amp;&amp; upReg) &#123;</span><br><span class="line">    modulationReg := modulationReg + <span class="number">1.</span><span class="type">U</span></span><br><span class="line">&#125; .elsewhen ( modulationReg === <span class="type">FREQ</span>.<span class="type">U</span> &amp;&amp; upReg) &#123;</span><br><span class="line">    upReg := <span class="literal">false</span>.<span class="type">B</span>                                <span class="comment">// 计数加模式</span></span><br><span class="line">&#125; .elsewhen ( modulationReg &gt; <span class="number">0.</span><span class="type">U</span> &amp;&amp; !upReg) &#123;</span><br><span class="line">    modulationReg := modulationReg - <span class="number">1.</span><span class="type">U</span>            <span class="comment">// 计数减模式</span></span><br><span class="line">&#125; . otherwise &#123; <span class="comment">// 0</span></span><br><span class="line">    upReg := <span class="literal">true</span>.<span class="type">B</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// divide modReg by 1024 (about the 1 kHz)</span></span><br><span class="line"><span class="keyword">val</span> sig = pwm(<span class="type">MAX</span> , modulationReg &gt;&gt; <span class="number">10</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="Example-移位寄存器"><a href="#Example-移位寄存器" class="headerlink" title="Example: 移位寄存器"></a>Example: 移位寄存器</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> shiftReg = <span class="type">Reg</span>(<span class="type">UInt</span>(<span class="number">4.</span><span class="type">W</span>))</span><br><span class="line">shiftReg := <span class="type">Cat</span>(shiftReg(<span class="number">2</span>,<span class="number">0</span>), din)</span><br><span class="line"><span class="keyword">val</span> dout = shiftReg(<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>Cat</code>用于串接输入输出，对于Reg和Wire的位选，使用括号，也就是Scala中的<code>Apply()</code>方法。</p>
+<h2 id="存储器"><a href="#存储器" class="headerlink" title="存储器"></a>存储器</h2><p>存储器可以用寄存器阵列进行构建，也可以使用SRAM。在ASIC设计中，使用<code>memory compiler</code>进行设计；在FPGA设计中，片上拥有block RAM资源。</p>
+<p>Chisel提供了存储器构建器<code>SyncReadMem</code>，对于同时读写一个地址，Chisel将其定义为未定义的行为，此时，我们可以手动进行旁路。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MemoryWithForwarding</span>(<span class="params"></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;</span><br><span class="line">        <span class="keyword">val</span> rdAddr = <span class="type">Input</span>(<span class="type">UInut</span>(<span class="number">10.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> rdData = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> wrEna = <span class="type">Input</span>(<span class="type">Bool</span>())</span><br><span class="line">        <span class="keyword">val</span> wrData = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> wrAddr = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">10.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">val</span> mem = <span class="type">SyncReadMem</span>(<span class="number">1024</span>,<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">val</span> wrDataReg = <span class="type">RegNext</span>(io.wrData)</span><br><span class="line">    <span class="keyword">val</span> doForwardingReg = <span class="type">RegNext</span>(io.wAddr === io.rdAddr &amp;&amp; io.wrEna)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">val</span> memData = mem.read(io.rdAddr)</span><br><span class="line">    </span><br><span class="line">    when(io.wrEna) &#123;</span><br><span class="line">        mem.write(io.wrAddr, io.wrData)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    io.rdData := <span class="type">Mux</span>(doForwardingReg, wrDataReg, memData)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Chisel也提供了<code>Mem</code>，异步读，同步写，类似于FPGA中的<code>distributed RAM</code>。</p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/23/Chisel_Note_4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/23/Chisel_Note_4/" class="post-title-link" itemprop="url">Chisel学习笔记（四）：组件</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-23 15:00:00" itemprop="dateCreated datePublished" datetime="2020-08-23T15:00:00+08:00">2020-08-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="Chisel模块"><a href="#Chisel模块" class="headerlink" title="Chisel模块"></a>Chisel模块</h2><p>在Chisel中，每一个硬件模块继承<code>Module</code>类，并且拥有一个名为<code>io</code>的域。IO被Bundle所包裹，端口的方向通过调用Input()或者Output()来声明。</p>
+<p>以下是声明两个组件的代码</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompA</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> a = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> b = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> x = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> y = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompB</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> in1 = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> in2 = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>以下是在顶层模块中实例化两个部件，并进行连线的代码。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CompC</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> in_a = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> in_b = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> in_c = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> out_x = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> out_y = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">val</span> compA = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">CompA</span>())</span><br><span class="line">    <span class="keyword">val</span> compB = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">CompB</span>())</span><br><span class="line">    </span><br><span class="line">    compA.io.a := io.in_a</span><br><span class="line">    compA.io.b := io.in_b</span><br><span class="line">    io.out_x := compA.io.x</span><br><span class="line">    </span><br><span class="line">    compB.io.in1 := compA.io.y</span><br><span class="line">    compB.io.in2 := io.in_c</span><br><span class="line">    io.out_y := compB.io.out</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>组件通过<code>new</code>关键字来创建，并且需要被包裹在一个对于<code>Module</code>的调用中。</p>
+<p><strong>对于组件的引用存储在一个本地变量，例如，compA中</strong>，可以通过io域来访问组件的IO端口。</p>
+<h2 id="实例：ALU"><a href="#实例：ALU" class="headerlink" title="实例：ALU"></a>实例：ALU</h2><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chisel3.util._</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Alu</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;</span><br><span class="line">        <span class="keyword">val</span> a = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> b = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> fn = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">2.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> y = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">16.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    io.y := <span class="number">0.</span><span class="type">U</span> <span class="comment">// 需要赋初值</span></span><br><span class="line">    switch(io.fn) &#123;</span><br><span class="line">        is(<span class="number">0.</span><span class="type">U</span>) &#123; io.y := io.a + io.b &#125;</span><br><span class="line">        <span class="comment">// .................</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用了<code>switch/is</code>表达式来表示case。</p>
+<h2 id="批量端口连接"><a href="#批量端口连接" class="headerlink" title="批量端口连接"></a>批量端口连接</h2><p>我们可以使用<code>&lt;&gt;</code>运算符进行批量端口连接。Chisel会自动对那些同名的、方向相反的端口进行连接，如果没有同名端口，那么则不会被连接。</p>
+<p>例如，流水线处理器中的几个阶段：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Fetch</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> instr = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> pc = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="comment">// Fetch</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Decode</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> instr = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> pc = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> aluOp = <span class="type">Ouput</span>(<span class="type">UInt</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在顶层模块对他们进行连接的时候，可以：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">cpu</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>( ..... )</span><br><span class="line">    <span class="keyword">val</span> ifu = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">Fetch</span>())</span><br><span class="line">    <span class="keyword">val</span> dec = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">Decode</span>())</span><br><span class="line">    ifu.io &lt;&gt; dec.io    <span class="comment">// 完成同名端口的连接</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在实际编写代码的时候，我们为了清晰起见，可以使用<code>src_dst</code>的后缀来编码信号。</p>
+<h2 id="使用函数生成轻量化的模块"><a href="#使用函数生成轻量化的模块" class="headerlink" title="使用函数生成轻量化的模块"></a>使用函数生成轻量化的模块</h2><p>某些硬件模块 ，除了参数变动，或是连线变动之外，不会发生其他的改变，这时候我们可以使用函数返回相应的硬件模块。</p>
+<p>比Verilog的参数化更强大的是，函数可以以实际的硬件信号为输入，这样，就免去了声明模块-实例化模块-连线的过程。</p>
+<p>例如，我们定义一个加法器。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">adder</span> </span>( x: <span class="type">UInt</span>, y: <span class="type">UInt</span> ) = &#123;</span><br><span class="line">    x + y</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以非常轻松地使用<code>adder</code>函数创建，并连线两个加法器。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> x = adder(a,b) </span><br><span class="line"><span class="keyword">val</span> y = adder(c,d)</span><br></pre></td></tr></table></figure>
+
+<p>应该可以注意到，这个函数是一个硬件生成器。在调用函数的过程中，并没有进行加法的运算，而是只是在函数里面创建了一个新的硬件节点，并对信号进行了连接。这个例子带来的收益并不明显，因为加法在Chisel中已经是一个重载过的运算符了。</p>
+<p>函数中同样可以使用寄存器，函数被多次调用，会产生多个硬件的寄存器实例。</p>
+<p>例如，我们声明一个<code>delay</code>函数，将某个信号延时一拍。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">delay</span></span>(x: <span class="type">UInt</span>) = <span class="type">RegNext</span>(x)</span><br></pre></td></tr></table></figure>
+
+<p>我们可以嵌套调用<code>delay</code>函数，生成一个将信号延迟两拍的器件。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> delay_2cyc = delay(delay(delay_in))</span><br></pre></td></tr></table></figure>
+
+<p><strong>函数可以作为Module的一个部分被声明，然而，如果是在不同的Module中被使用的函数，最好被放在一个专门的<code>object</code>中。</strong></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/22/Chisel_Note_3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/22/Chisel_Note_3/" class="post-title-link" itemprop="url">Chisel学习笔记（三）：Chisel的构建与测试</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-22 15:00:00" itemprop="dateCreated datePublished" datetime="2020-08-22T15:00:00+08:00">2020-08-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本节主要记录如何编译Chisel代码，生成Verilog和测试我们的Chisel设计。由于Chisel使用Scala实现，构建Scala的常用工具是<code>sbt</code>。在编译和测试的过程中，<code>sbt</code>下载对应版本的Scala和Chisel库。</p>
+<h2 id="使用sbt构建项目"><a href="#使用sbt构建项目" class="headerlink" title="使用sbt构建项目"></a>使用sbt构建项目</h2><ul>
+<li>在构建项目时，会通过<code>build.sbt</code>中指出的库，从Maven仓库中下载相应版本的Chisel。</li>
+<li>如果在<code>build.sbt</code>中使用<code>latest.release</code>，则每次都会下载Chisel的最新版本</li>
+<li>推荐在<code>build.sbt</code>中指明Chisel版本，以达到离线使用的目的</li>
+</ul>
+<h3 id="源文件组织"><a href="#源文件组织" class="headerlink" title="源文件组织"></a>源文件组织</h3><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823131332598.png" alt="image-20200823131332598"></p>
+<p>推荐的文件组织方式如上图所示。</p>
+<p>Package将Chisel代码划分成命名空间，Package还可以包括不同的子Pacakge。</p>
+<p>Target文件夹包括了那些类的文件和其他生成好的文件。</p>
+<p>generated文件夹包含了生成的Verilog代码。</p>
+<p>以下是一个Package的实例：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">pacakge mypack</span><br><span class="line"><span class="keyword">import</span> chisel3._</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Abc</span> <span class="title">extens</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意到我们导入了Chisel包。</p>
+<p>如果要在其他的环境（不同的命名空间）中使用Abc模块，需要导入mypack包，下划线代表通配符，表示导入<code>mypack</code>包中所有的类。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import mypack._</span><br></pre></td></tr></table></figure>
+
+<p>也可以导入一部分类，此时需要指明包名和类名。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AbcUser2</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;&#125;)</span><br><span class="line">    <span class="keyword">val</span> abc = <span class="keyword">new</span> mypack.<span class="type">Abc</span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> mypack.<span class="type">Abc</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AbcUser3</span> <span class="title">exteds</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span>&#123;&#125;)</span><br><span class="line">    <span class="keyword">val</span> abc = <span class="keyword">new</span> <span class="type">Abc</span>()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="运行sbt"><a href="#运行sbt" class="headerlink" title="运行sbt"></a>运行sbt</h3><p>Chisel项目可以用<code>sbt</code>命令编译并运行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sbt run</span><br></pre></td></tr></table></figure>
+
+<p>这个命令将搜索Chisel源码树中的满足：拥有包含<code>main</code>方法的<code>object</code>的类 / 继承了App类的类。如果有多个满足条件，将会列出所有供选择。</p>
+<p>当然也可以进行显式的选择。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sbt &quot;runMain mypacket.MyObject&quot;</span><br></pre></td></tr></table></figure>
+
+<p>Chisel测试程序包含<code>main</code>方法，但被放在了<code>test</code>文件夹中，并不会被<code>sbt</code>扫描到（这是Java/Scala的一个约定，认为test文件夹中仅包含单元测试，并没有main方法）。为了在<code>tester</code>文件夹中执行，需要使用如下的命令：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sbt &quot;test:runMain mypacket.MyTester&quot;</span><br></pre></td></tr></table></figure>
+
+<h3 id="工具流"><a href="#工具流" class="headerlink" title="工具流"></a>工具流</h3><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823131357855.png" alt="image-20200823131357855"></p>
+<p>电路的RTL文件是<code>Hello.scala</code>，Scala编译器将这个文件和Chisel库、Scala库一起编译，生成Java类<code>Hello.class</code>，使用JVM进行执行，执行后生成RTL的中间表示（FIRRTL）。</p>
+<p>Treadle是一个FIRRTL的解释器，可以用来仿真电路，可以生成波形文件。</p>
+<p>Verilog Emitter可以生成Verilog代码。</p>
+<h2 id="使用Chisel进行测试"><a href="#使用Chisel进行测试" class="headerlink" title="使用Chisel进行测试"></a>使用Chisel进行测试</h2><p>DUT: Design Under Test， 被测模块</p>
+<h3 id="PeekPokeTester"><a href="#PeekPokeTester" class="headerlink" title="PeekPokeTester"></a>PeekPokeTester</h3><p>Chisel可以使用Scala的很多特性来编写TB，例如，可以<strong>使用软件来编写硬件的功能，并且在仿真时和真正的硬件行为进行比较</strong>。例如，在[Martin Schoeberl. Lipsi: Probably the smallest processor in the world. In Architecture of Computing Systems – ARCS 2018, pages 18–30. Springer International Publishing, 2018.]中，实现一个处理器并进行测试。</p>
+<p>需要导入的包有：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> chisel3._</span><br><span class="line"><span class="keyword">import</span> chisel3.iotesters._</span><br></pre></td></tr></table></figure>
+
+<p>对电路进行测试，需要包含三个元素：</p>
+<ul>
+<li>用于测试的单元</li>
+<li>测试逻辑</li>
+<li>测试对象，包含开始测试的<code>main</code>方法</li>
+</ul>
+<h4 id="DUT（被测对象）"><a href="#DUT（被测对象）" class="headerlink" title="DUT（被测对象）"></a>DUT（被测对象）</h4><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DeviceUnderTest</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> a = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">2.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> b = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">2.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">2.</span><span class="type">W</span>))</span><br><span class="line">    &#125; )</span><br><span class="line">    </span><br><span class="line">    io.out := io.a &amp; io.b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="测试逻辑"><a href="#测试逻辑" class="headerlink" title="测试逻辑"></a>测试逻辑</h4><p>测试对象需要从<code>PeekPokeTester</code>中继承，并且以DUT作为参数传入。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">TesterSimple</span>(<span class="params">dut: <span class="type">DeviceUnderTest</span> </span>) <span class="keyword">extends</span></span></span><br><span class="line"><span class="class">    <span class="title">PeekPokeTester</span>(<span class="params">dut</span>) </span>&#123;</span><br><span class="line">    poke(dut.io.a, <span class="number">0.</span><span class="type">U</span>)</span><br><span class="line">    poke(dut.io.b, <span class="number">1.</span><span class="type">U</span>)</span><br><span class="line">    step (<span class="number">1</span>)</span><br><span class="line">    println(<span class="string">&quot;Result is: &quot;</span> + peek(dut.io.out).toString)</span><br><span class="line">    poke(dut.io.a, <span class="number">3.</span><span class="type">U</span>)</span><br><span class="line">    poke(dut.io.b, <span class="number">2.</span><span class="type">U</span>)</span><br><span class="line">    step (<span class="number">1</span>)</span><br><span class="line">    println(<span class="string">&quot;Result is: &quot;</span> + peek(dut.io.out).toString)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>PeekPokeTester</code>可以用<code>poke()</code>设置输入，并使用<code>peek()</code>获取输出。使用<code>step(1)</code>来前进一个时钟周期。</p>
+<h4 id="测试对象（object）"><a href="#测试对象（object）" class="headerlink" title="测试对象（object）"></a>测试对象（object）</h4><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">TesterSimple</span> <span class="keyword">extends</span> <span class="title">App</span> </span>&#123;</span><br><span class="line">    chisel3. iotesters .<span class="type">Driver</span> (() =&gt; <span class="keyword">new</span> <span class="type">DeviceUnderTest</span> ()) &#123; c =&gt;</span><br><span class="line">        <span class="keyword">new</span> <span class="type">TesterSimple</span> (c)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>也可以使用<code>expect</code>断言，让程序自动检查测试是否通过。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Tester</span>(<span class="params">dut: <span class="type">DeviceUnderTest</span> </span>) <span class="keyword">extends</span> <span class="title">PeekPokeTester</span>(<span class="params">dut</span>) </span>&#123;</span><br><span class="line">    poke(dut.io.a, <span class="number">3.</span><span class="type">U</span>)</span><br><span class="line">    poke(dut.io.b, <span class="number">1.</span><span class="type">U</span>)</span><br><span class="line">    step (<span class="number">1</span>)</span><br><span class="line">    expect(dut.io.out , <span class="number">1</span>)</span><br><span class="line">    poke(dut.io.a, <span class="number">2.</span><span class="type">U</span>)</span><br><span class="line">    poke(dut.io.b, <span class="number">0.</span><span class="type">U</span>)</span><br><span class="line">    step (<span class="number">1</span>)</span><br><span class="line">    expect(dut.io.out , <span class="number">0</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="ScalaTest"><a href="#ScalaTest" class="headerlink" title="ScalaTest"></a>ScalaTest</h3><p>ScalaTest是一个用于测试Scala的工具，我们也可以用来运行Chisel测试。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">libraryDependencies +&#x3D; &quot;org.scalatest&quot; %% &quot;scalatest&quot; % &quot;3.0.5&quot; % &quot;test&quot;</span><br></pre></td></tr></table></figure>
+
+<p>使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sbt test</span><br></pre></td></tr></table></figure>
+
+<p>就可以运行在<code>src/test/scala</code>下面的测试程序。</p>
+<p>一个简单的测试程序如下：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org. scalatest ._</span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ExampleSpec</span> <span class="keyword">extends</span> <span class="title">FlatSpec</span> <span class="keyword">with</span> <span class="title">Matchers</span> </span>&#123;</span><br><span class="line">    <span class="string">&quot;Integers&quot;</span> should <span class="string">&quot;add&quot;</span> in &#123;</span><br><span class="line">        <span class="keyword">val</span> i = <span class="number">2</span></span><br><span class="line">        <span class="keyword">val</span> j = <span class="number">3</span></span><br><span class="line">        i + j should be (<span class="number">5</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>事实上，我们可以将Chisel的测试包裹到Scala中去。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SimpleSpec</span> <span class="keyword">extends</span> <span class="title">FlatSpec</span> <span class="keyword">with</span> <span class="title">Matchers</span> </span>&#123;</span><br><span class="line">    <span class="string">&quot;Tester&quot;</span> should <span class="string">&quot;pass&quot;</span> in &#123;</span><br><span class="line">        chisel3. iotesters .<span class="type">Driver</span> (() =&gt; <span class="keyword">new</span> <span class="type">DeviceUnderTest</span> ()) &#123; c =&gt;</span><br><span class="line">            <span class="keyword">new</span> <span class="type">Tester</span>(c)</span><br><span class="line">        &#125; should be (<span class="literal">true</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样做的好处是，可以使用</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sbt &quot;testOnly SimpleSpec&quot;</span><br></pre></td></tr></table></figure>
+
+<p>来运行单个测试。</p>
+<h3 id="波形图"><a href="#波形图" class="headerlink" title="波形图"></a>波形图</h3><p>要生成波形图，应该在进行测试时添加一定的参数。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">WaveformSpec</span> <span class="keyword">extends</span> <span class="title">FlatSpec</span> <span class="keyword">with</span> <span class="title">Matchers</span> </span>&#123;</span><br><span class="line">    <span class="string">&quot;Waveform&quot;</span> should <span class="string">&quot;pass&quot;</span> in &#123;</span><br><span class="line">        <span class="type">Driver</span>.execute(<span class="type">Array</span>(<span class="string">&quot;--generate -vcd-output&quot;</span>, <span class="string">&quot;on&quot;</span>), () =&gt;</span><br><span class="line">            <span class="keyword">new</span> <span class="type">DeviceUnderTest</span> ()) &#123; c =&gt;</span><br><span class="line">            <span class="keyword">new</span> <span class="type">WaveformTester</span> (c)</span><br><span class="line">        &#125; should be (<span class="literal">true</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成的<code>vcd</code>波形图文件可以使用GTKWake或者Modelsim打开。</p>
+<h3 id="printf调试"><a href="#printf调试" class="headerlink" title="printf调试"></a>printf调试</h3><p>在Chisel中写printf语句，在时钟的上升沿会触发printf语句。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DeviceUnderTestPrintf</span> <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">    <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">        <span class="keyword">val</span> a = <span class="type">Input</span>(<span class="type">UInt</span> (<span class="number">2.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> b = <span class="type">Input</span>(<span class="type">UInt</span> (<span class="number">2.</span><span class="type">W</span>))</span><br><span class="line">        <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span> (<span class="number">2.</span><span class="type">W</span>))</span><br><span class="line">    &#125;)</span><br><span class="line">        io.out := io.a &amp; io.b</span><br><span class="line">        printf(<span class="string">&quot;dut: %d %d %d\n&quot;</span>, io.a, io.b, io.out)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/21/Blog_deploy_note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/08/21/Blog_deploy_note/" class="post-title-link" itemprop="url">使用Hexo搭建个人博客过程记录</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-21 20:00:00" itemprop="dateCreated datePublished" datetime="2020-08-21T20:00:00+08:00">2020-08-21</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/" itemprop="url" rel="index"><span itemprop="name">技术笔记</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <p>本文主要记录使用Hexo+Next主题搭建博客，并部署在Github Pages，使之能够通过个人域名访问的全过程。</p>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><h3 id="环境配置"><a href="#环境配置" class="headerlink" title="环境配置"></a>环境配置</h3><p>首先需要安装node环境，安装完毕后，在命令行中输入：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-cli -g</span><br></pre></td></tr></table></figure>
+<p>安装完毕后，进入某个目录，在命令行中输入</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo init blog</span><br><span class="line">cd blog</span><br><span class="line">npm install</span><br></pre></td></tr></table></figure>
+<p>然后安装Next主题：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-theme-next</span><br></pre></td></tr></table></figure>
+<p>以上命令会将next主题依赖添加到<code>package.json</code>文件中，方便后续在Github CI上部署。</p>
+<h3 id="修改Hexo配置文件"><a href="#修改Hexo配置文件" class="headerlink" title="修改Hexo配置文件"></a>修改Hexo配置文件</h3><p>此后，修改<code>_config.yml</code>文件，找到<code>theme</code>这一行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">theme: next</span><br></pre></td></tr></table></figure>
+
+<p>根据hexo文档中的指导，修改其他的内容。</p>
+<p><a target="_blank" rel="noopener" href="https://hexo.io/zh-cn/docs/configuration">https://hexo.io/zh-cn/docs/configuration</a></p>
+<h3 id="修改Next配置文件"><a href="#修改Next配置文件" class="headerlink" title="修改Next配置文件"></a>修改Next配置文件</h3><p>将配置文件复制到根目录：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp node_modules&#x2F;hexo-theme-next&#x2F;_config.yml _config.next.yml</span><br></pre></td></tr></table></figure>
+
+<p>具体设置参考Next文档。</p>
+<p><a target="_blank" rel="noopener" href="https://theme-next.js.org/docs/theme-settings/">https://theme-next.js.org/docs/theme-settings/</a></p>
+<p>根据文档，添加about, tags, categories页面。</p>
+<h2 id="部署到Github"><a href="#部署到Github" class="headerlink" title="部署到Github"></a>部署到Github</h2><h3 id="建立Github仓库"><a href="#建立Github仓库" class="headerlink" title="建立Github仓库"></a>建立Github仓库</h3><p>在Github中建立一个公开仓库，命名为<code>&lt;name&gt;.github.io</code>。</p>
+<p>在Hexo配置文件中，修改最后三行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">deploy:</span><br><span class="line">  type: git</span><br><span class="line">  repository: git@github.com:Bohan-hu&#x2F;Bohan-hu.github.io.git</span><br><span class="line">  branch: master</span><br></pre></td></tr></table></figure>
+
+<h3 id="建立源代码仓库"><a href="#建立源代码仓库" class="headerlink" title="建立源代码仓库"></a>建立源代码仓库</h3><p>在本地刚刚建立的Blog文件夹中，新建<code>.github\workflows\deploy.yml</code>，用于CI自动部署。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823133939523.png" alt="image-20200823133939523"></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">name: CI</span><br><span class="line"></span><br><span class="line">on:</span><br><span class="line">  push:</span><br><span class="line">    branches:</span><br><span class="line">      - master</span><br><span class="line"></span><br><span class="line">env:</span><br><span class="line">  GIT_USER: Bohan-Hu</span><br><span class="line">  GIT_EMAIL: bohan.hu@ieee.org</span><br><span class="line">  DEPLOY_REPO: Bohan-hu&#x2F;Bohan-hu.github.io</span><br><span class="line">  DEPLOY_BRANCH: master</span><br><span class="line"></span><br><span class="line">jobs:</span><br><span class="line">  build:</span><br><span class="line">    name: Build on node $&#123;&#123; matrix.node_version &#125;&#125; and $&#123;&#123; matrix.os &#125;&#125;</span><br><span class="line">    runs-on: ubuntu-latest</span><br><span class="line">    strategy:</span><br><span class="line">      matrix:</span><br><span class="line">        os: [ubuntu-latest]</span><br><span class="line">        node_version: [12.x]</span><br><span class="line"></span><br><span class="line">    steps:</span><br><span class="line">      - name: Checkout</span><br><span class="line">        uses: actions&#x2F;checkout@v2</span><br><span class="line"></span><br><span class="line">      - name: Checkout deploy repo</span><br><span class="line">        uses: actions&#x2F;checkout@v2</span><br><span class="line">        with:</span><br><span class="line">          repository: $&#123;&#123; env.DEPLOY_REPO &#125;&#125;</span><br><span class="line">          ref: $&#123;&#123; env.DEPLOY_BRANCH &#125;&#125;</span><br><span class="line">          path: .deploy_git</span><br><span class="line"></span><br><span class="line">      - name: Use Node.js $&#123;&#123; matrix.node_version &#125;&#125;</span><br><span class="line">        uses: actions&#x2F;setup-node@v1</span><br><span class="line">        with:</span><br><span class="line">          node-version: $&#123;&#123; matrix.node_version &#125;&#125;</span><br><span class="line"></span><br><span class="line">      - name: Configuration environment</span><br><span class="line">        env:</span><br><span class="line">          HEXO_DEPLOY_PRI: $&#123;&#123;secrets.HEXO_DEPLOY_PRI&#125;&#125;</span><br><span class="line">        run: |</span><br><span class="line">          sudo timedatectl set-timezone &quot;Asia&#x2F;Shanghai&quot;</span><br><span class="line">          mkdir -p ~&#x2F;.ssh&#x2F;</span><br><span class="line">          echo &quot;$HEXO_DEPLOY_PRI&quot; &gt; ~&#x2F;.ssh&#x2F;id_rsa</span><br><span class="line">          chmod 600 ~&#x2F;.ssh&#x2F;id_rsa</span><br><span class="line">          ssh-keyscan github.com &gt;&gt; ~&#x2F;.ssh&#x2F;known_hosts</span><br><span class="line">          git config --global user.name $GIT_USER</span><br><span class="line">          git config --global user.email $GIT_EMAIL</span><br><span class="line"></span><br><span class="line">      - name: Install dependencies</span><br><span class="line">        run: |</span><br><span class="line">          npm install</span><br><span class="line"></span><br><span class="line">      - name: Deploy hexo</span><br><span class="line">        run: |</span><br><span class="line">          npm run deploy</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置仓库权限"><a href="#配置仓库权限" class="headerlink" title="配置仓库权限"></a>配置仓库权限</h3><p>此后，在本地生成一对公私密钥。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ssh-keygen -t rsa -f</span><br></pre></td></tr></table></figure>
+
+<p>在Github中，对于网站源代码仓库，将<code>private key</code>在源文件仓库中加入到<code>HEXO_DEPLOY_PRI</code>变量中，将<code>public key</code>放入网站的文件仓库中的<code>Deploy keys</code>中。</p>
+<p>在Github新建一个私有仓库，将网站源文件（即Hexo刚刚建立的文件夹）推上去，观察CI自动部署的情况。</p>
+<h2 id="使用个人域名访问"><a href="#使用个人域名访问" class="headerlink" title="使用个人域名访问"></a>使用个人域名访问</h2><p>域名的服务商此处选择Godaddy，并使用Cloudflare提供的解析服务。</p>
+<h3 id="设置Cloudflare"><a href="#设置Cloudflare" class="headerlink" title="设置Cloudflare"></a>设置Cloudflare</h3><p>进入Cloudflare，添加刚刚注册的域名，并进入DNS选项卡，添加A记录。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823134133941.png" alt="image-20200823134133941"></p>
+<p>设置完毕后，需要一定时间生效，此时，进入SSL/TTS-边缘证书-始终使用HTTPS：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823134157565.png" alt="image-20200823134157565"></p>
+<h3 id="设置Godaddy"><a href="#设置Godaddy" class="headerlink" title="设置Godaddy"></a>设置Godaddy</h3><p>在Godaddy注册域名后，在域名解析的选项中，设置为Cloudflare的域名服务器。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823134210525.png" alt="image-20200823134210525"></p>
+<h3 id="添加CNAME"><a href="#添加CNAME" class="headerlink" title="添加CNAME"></a>添加CNAME</h3><p>在博客文件夹的<code>source</code>子目录中，新建<code>CNAME</code>文件，用大写写入自己绑定到Github的域名。</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823134225476.png" alt="image-20200823134225476"></p>
+<p>至此，可以通过域名访问自己的博客主页了。</p>
+<h2 id="设置图床"><a href="#设置图床" class="headerlink" title="设置图床"></a>设置图床</h2><p>由于Hexo添加图片较为麻烦，建议使用图床，国内使用Gitee作为图床是比较好的选择。</p>
+<p>8.23更新：由于Gitee对于微信浏览器的UA做了限制，所以现在采用Github+JsDelivr的方案。</p>
+<h3 id="安装Picgo并建立Github仓库"><a href="#安装Picgo并建立Github仓库" class="headerlink" title="安装Picgo并建立Github仓库"></a>安装Picgo并建立Github仓库</h3><p>在Picgo官网下载安装Picgo后，在Github中建立一个新的公开仓库，同时需要使用Readme初始化，以新建Master分支。</p>
+<h3 id="配置插件"><a href="#配置插件" class="headerlink" title="配置插件"></a>配置插件</h3><p>注意链接格式，前缀为<code>https://cdn.jsdelivr.net/gh/用户名/仓库名</code></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823134358958.png" alt="image-20200823134358958"></p>
+<h3 id="配置Typora"><a href="#配置Typora" class="headerlink" title="配置Typora"></a>配置Typora</h3><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823134508984.png" alt="image-20200823134508984"></p>
+<p>如果出现Fetch Error，更改监听端口为36677.</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200823134519328.png" alt="image-20200823134519328"></p>
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left" aria-label="上一页"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span>
+  </nav>
+
+
+
+        </div>
+        
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胡博涵</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

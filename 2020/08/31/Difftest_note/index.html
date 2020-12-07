@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hubohan.space","root":"/","scheme":"Pisces","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
+  </script>
+
+  <meta name="description" content="近期接触了国科大的Nutshell项目，深感其差分测试思想的精妙之处，非常感谢国科大的教学团队为CPU测试提供了一个创新的思路。 本文记录了笔者学习差分测试源代码时的一些收获与想法。 要理解差分测试的源代码，首先需要理解Verilator仿真器的仿真机制。笔者在学习Verilator的过程中，也记录了相关的笔记：https:&#x2F;&#x2F;hubohan.space&#x2F;2020&#x2F;08&#x2F;30&#x2F;Verilator_">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nutshell仿真机制解析">
+<meta property="og:url" content="http://hubohan.space/2020/08/31/Difftest_note/index.html">
+<meta property="og:site_name" content="Hu&#39;s Blog">
+<meta property="og:description" content="近期接触了国科大的Nutshell项目，深感其差分测试思想的精妙之处，非常感谢国科大的教学团队为CPU测试提供了一个创新的思路。 本文记录了笔者学习差分测试源代码时的一些收获与想法。 要理解差分测试的源代码，首先需要理解Verilator仿真器的仿真机制。笔者在学习Verilator的过程中，也记录了相关的笔记：https:&#x2F;&#x2F;hubohan.space&#x2F;2020&#x2F;08&#x2F;30&#x2F;Verilator_">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200829214644319.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200901004921682.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200901004321667.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200901010424899.png">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200901010449629.png">
+<meta property="article:published_time" content="2020-08-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-12-07T03:08:44.475Z">
+<meta property="article:author" content="胡博涵">
+<meta property="article:tag" content="测试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200829214644319.png">
+
+<link rel="canonical" href="http://hubohan.space/2020/08/31/Difftest_note/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Nutshell仿真机制解析 | Hu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <main class="main">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Hu's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Who's blog?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B7%AE%E5%88%86%E6%B5%8B%E8%AF%95%E7%9A%84%E6%80%BB%E4%BD%93%E6%80%9D%E6%83%B3"><span class="nav-number">1.</span> <span class="nav-text">差分测试的总体思想</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%82%E5%AF%9F%E7%94%9F%E6%88%90%E7%9A%84Verilog%E9%A1%B6%E5%B1%82%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">观察生成的Verilog顶层模型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#main-c-%E5%BC%80%E5%A7%8B%E7%9A%84%E5%9C%B0%E6%96%B9"><span class="nav-number">3.</span> <span class="nav-text">main.c - 开始的地方</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#emu-h-%E8%A7%A3%E6%9E%84Emulator%E7%B1%BB"><span class="nav-number">4.</span> <span class="nav-text">emu.h - 解构Emulator类</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#read-emu-regs"><span class="nav-number">4.1.</span> <span class="nav-text">read_emu_regs</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%9D%E5%A7%8B%E5%8C%96-%E6%9E%84%E9%80%A0%E5%87%BD%E6%95%B0"><span class="nav-number">4.2.</span> <span class="nav-text">初始化 - 构造函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#reset-ncycles-%E9%87%8D%E7%BD%AEn%E4%B8%AA%E5%91%A8%E6%9C%9F"><span class="nav-number">4.3.</span> <span class="nav-text">reset_ncycles - 重置n个周期</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#single-cycle-%E5%89%8D%E8%BF%9B%E4%B8%80%E4%B8%AA%E6%97%B6%E9%92%9F%E5%91%A8%E6%9C%9F%EF%BC%88%E5%8D%95%E6%AD%A5%EF%BC%89"><span class="nav-number">4.4.</span> <span class="nav-text">single_cycle() - 前进一个时钟周期（单步）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#execute-cycles-%E6%9C%80%E6%A0%B8%E5%BF%83%E7%9A%84%E9%83%A8%E5%88%86"><span class="nav-number">4.5.</span> <span class="nav-text">execute_cycles - 最核心的部分</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#difftest-step-%E7%81%B5%E9%AD%82"><span class="nav-number">4.6.</span> <span class="nav-text">difftest_step() - 灵魂</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#need-copy-pc%E5%88%B0%E5%BA%95%E6%9C%89%E5%95%A5%E7%94%A8%EF%BC%9F"><span class="nav-number">4.6.1.</span> <span class="nav-text">need_copy_pc到底有啥用？</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#%E7%8C%9C%E6%B5%8B%E4%B8%8E%E9%AA%8C%E8%AF%81"><span class="nav-number">4.6.1.1.</span> <span class="nav-text">猜测与验证</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#device-cpp-ram-cpp-sdcard-cpp-uart-cpp-vga-cpp%E7%AD%89-DPI-C%E6%8E%A5%E5%8F%A3"><span class="nav-number">5.</span> <span class="nav-text">device.cpp, ram.cpp, sdcard.cpp, uart.cpp, vga.cpp等 - DPI-C接口</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">胡博涵</p>
+  <div class="site-description" itemprop="description">CS Undergraduate at Harbin Institute of Technology, Shenzhen</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Bohan-Hu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Bohan-Hu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubohancser@gmail.com" title="E-Mail → mailto:hubohancser@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </header>
+
+      
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+      <div class="main-inner">
+        
+
+        <div class="content post posts-expand">
+          
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/31/Difftest_note/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Nutshell仿真机制解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-31 00:00:00" itemprop="dateCreated datePublished" datetime="2020-08-31T00:00:00+08:00">2020-08-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>近期接触了国科大的Nutshell项目，深感其差分测试思想的精妙之处，非常感谢国科大的教学团队为CPU测试提供了一个创新的思路。</p>
+<p>本文记录了笔者学习差分测试源代码时的一些收获与想法。</p>
+<p>要理解差分测试的源代码，首先需要理解Verilator仿真器的仿真机制。笔者在学习Verilator的过程中，也记录了相关的笔记：<a href="https://hubohan.space/2020/08/30/Verilator_note/">https://hubohan.space/2020/08/30/Verilator_note/</a></p>
+<h3 id="差分测试的总体思想"><a href="#差分测试的总体思想" class="headerlink" title="差分测试的总体思想"></a>差分测试的总体思想</h3><p>在参加“龙芯杯”竞赛的时候，我们接触了基于<code>trace</code>比对的测试机制，让DUT和黄金模型同样执行一段程序，捕捉黄金模型处理器状态改变的轨迹，即哪条指令(PC)在何时(trace中的顺序)往哪个寄存器(<code>wnum</code>)写入了什么值(<code>wbdata</code>)，然后将DUT执行的轨迹和黄金模型执行的轨迹逐条比对，遇到出错点即停止执行，这其中其实也用到了差分测试的思路。</p>
+<p>Easydiff是Nutshell采用的测试框架，它将这个差分测试的思想更进了一步，<code>trace</code>比对机制是将处理器状态改变的<strong>轨迹</strong>进行比对，而Easydiff是将处理器的<strong>全状态</strong>进行比对，包括GPR、控制寄存器和PC。毫无疑问地，这个比对的粒度更细，能够更精确地定位到错误点。</p>
+<p>在Easydiff中，DUT是我们自己实现的CPU，黄金模型是南京大学的NEMU模拟器。Easydiff在DUT状态改变的时候，立即让NEMU模拟器执行和DUT相同的指令，并且比对其状态，若有差异，立刻报错停止。</p>
+<p>在Easydiff框架中，采用的仿真器是Verilator，其将Verilog源码构建为C++描述的仿真模型，而C++语言相较Verilog，具有更大的灵活性。项目提供的NEMU模拟器为动态链接库的形式，能够在运行时灵活地调用其API，进行动态链接。</p>
+<p>为了屏蔽NEMU的实现细节，将NEMU提供的API摘录如下：</p>
+<table>
+<thead>
+<tr>
+<th>API</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>ref_difftest_getregs</td>
+<td>从NEMU中获取寄存器状态</td>
+</tr>
+<tr>
+<td>ref_difftest_setregs</td>
+<td>设置NEMU的寄存器状态</td>
+</tr>
+<tr>
+<td>ref_difftest_exec</td>
+<td>NEMU执行n条指令</td>
+</tr>
+<tr>
+<td>ref_difftest_raise_intr</td>
+<td>触发NEMU的中断</td>
+</tr>
+</tbody></table>
+<p>在仿真阶段，NEMU的API通过动态链接的形式在仿真驱动代码<code>main.cpp</code>以及其下层函数中被调用，使用者无需关注其实现细节。</p>
+<h3 id="观察生成的Verilog顶层模型"><a href="#观察生成的Verilog顶层模型" class="headerlink" title="观察生成的Verilog顶层模型"></a>观察生成的Verilog顶层模型</h3><ul>
+<li><p>使用<code>make verilog</code>生成相应的Verilog文件，最终生成的代码在<code>build/Topmain.v</code>里面</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200829214644319.png" alt="image-20200829214644319"></p>
+</li>
+</ul>
+<p>其中可以看到，除了NutShell的顶层模块之外，还有<code>SDHelper.v</code>，<code>UARTGetc.v</code>和<code>FBHelper.v</code>三个文件，这三个文件是使用了Verilog与C语言的DPI接口，使用C语言描述相关的仿真行为，并在Verilog中进行调用，我们可以在文件中找到相关的细节：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">&quot;DPI-C&quot;</span> <span class="keyword">function</span> <span class="keyword">void</span> uart_getc(<span class="keyword">output</span> <span class="keyword">byte</span> ch);</span><br></pre></td></tr></table></figure>
+
+<p>为什么要这样写呢？因为仿真时可能会用到串口输入，而我们的控制台明显无法仿真串口，需要用C语言编写一个“假”的串口来进行仿真，而这个“串口”可以读取用户的键盘输入，并且将DUT的输出显示在控制台上。</p>
+<p>关于DPI-C的接口使用，稍后会进行介绍。</p>
+<p>同时注意到，仿真所使用的顶层模块<code>NutShellSimTop</code>，其暴露给外部有以下接口：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> NutShellSimTop(</span><br><span class="line">  <span class="keyword">input</span>         clock,</span><br><span class="line">  <span class="keyword">input</span>         reset,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_r0,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_r1,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_r2,</span><br><span class="line">  <span class="comment">// ...........................中间略 ............................</span></span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_r30,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_r31,</span><br><span class="line">  <span class="keyword">output</span>        io_difftest_commit,</span><br><span class="line">  <span class="keyword">output</span>        io_difftest_isMultiCommit,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_thisPC,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">31</span>:<span class="number">0</span>] io_difftest_thisINST,</span><br><span class="line">  <span class="keyword">output</span>        io_difftest_isMMIO,</span><br><span class="line">  <span class="keyword">output</span>        io_difftest_isRVC,</span><br><span class="line">  <span class="keyword">output</span>        io_difftest_isRVC2,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_intrNO,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">1</span>:<span class="number">0</span>]  io_difftest_priviledgeMode,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_mstatus,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_sstatus,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_mepc,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_sepc,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_mcause,</span><br><span class="line">  <span class="keyword">output</span> [<span class="number">63</span>:<span class="number">0</span>] io_difftest_scause,</span><br><span class="line">  <span class="keyword">input</span>  [<span class="number">63</span>:<span class="number">0</span>] io_logCtrl_log_begin,</span><br><span class="line">  <span class="keyword">input</span>  [<span class="number">63</span>:<span class="number">0</span>] io_logCtrl_log_end,</span><br><span class="line">  <span class="keyword">input</span>  [<span class="number">63</span>:<span class="number">0</span>] io_logCtrl_log_level,</span><br><span class="line">  <span class="keyword">output</span>        io_difftestCtrl_enable</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+
+<p>这些接口是暴露给编写的<code>difftest</code>函数使用的，目的在于进行对比。</p>
+<h3 id="main-c-开始的地方"><a href="#main-c-开始的地方" class="headerlink" title="main.c - 开始的地方"></a><code>main.c</code> - 开始的地方</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">auto</span> emu = Emulator(argc, argv);                    <span class="comment">// &lt;--------------- PAY ATTENTION TO IT</span></span><br><span class="line"></span><br><span class="line">  get_sc_time_stamp = [&amp;emu]() -&gt; <span class="keyword">double</span> &#123;            <span class="comment">// 匿名函数，lambda表达式</span></span><br><span class="line">    <span class="keyword">return</span> emu.get_cycles();</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  emu.execute();</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">extern</span> <span class="keyword">uint32_t</span> <span class="title">uptime</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">  <span class="keyword">uint32_t</span> ms = uptime();</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">int</span> <span class="title">display_trapinfo</span><span class="params">(<span class="keyword">uint64_t</span> max_cycles)</span></span>;</span><br><span class="line">  <span class="keyword">int</span> ret = display_trapinfo(emu.get_max_cycles());</span><br><span class="line">  eprintf(ANSI_COLOR_BLUE <span class="string">&quot;Guest cycle spent: %&quot;</span> PRIu64 <span class="string">&quot;\n&quot;</span> ANSI_COLOR_RESET, emu.get_cycles());</span><br><span class="line">  eprintf(ANSI_COLOR_BLUE <span class="string">&quot;Host time spent: %dms\n&quot;</span> ANSI_COLOR_RESET, ms);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们看到，主循环中，构造了一个模拟器<code>Emulator</code>，并且根据Verilator的要求，需要自行构造一个<code>get_cycle</code>的函数，以供Verilog中的<code>$time</code>任务调用。</p>
+<p>那么需要熟悉的就是<code>Emulator</code>和里面的<code>execute</code>函数了。</p>
+<h3 id="emu-h-解构Emulator类"><a href="#emu-h-解构Emulator类" class="headerlink" title="emu.h - 解构Emulator类"></a><code>emu.h</code> - 解构<code>Emulator</code>类</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Emulator</span> &#123;</span></span><br><span class="line">  <span class="keyword">const</span> <span class="keyword">char</span> *image;                            <span class="comment">// 镜像路径</span></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">shared_ptr</span>&lt;VNutShellSimTop&gt; dut_ptr;     <span class="comment">// Verilator模型</span></span><br><span class="line">  VerilatedVcdC* tfp;                            <span class="comment">// Verilator波形（由宏定义进行开关）</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 仿真器控制的相关变量</span></span><br><span class="line">  <span class="keyword">uint32_t</span> seed;</span><br><span class="line">  <span class="keyword">uint64_t</span> max_cycles, cycles;</span><br><span class="line">  <span class="keyword">uint64_t</span> log_begin, log_end, log_level;</span><br><span class="line">  <span class="comment">// 部分辅助函数，此处无需关注</span></span><br><span class="line">  <span class="function"><span class="built_in">std</span>::<span class="built_in">vector</span>&lt;<span class="keyword">const</span> <span class="keyword">char</span> *&gt; <span class="title">parse_args</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> *argv[])</span></span>;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">const</span> <span class="class"><span class="keyword">struct</span> <span class="title">option</span> <span class="title">long_options</span>[];</span></span><br><span class="line">  <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">print_help</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *file)</span></span>;</span><br><span class="line">  </span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">read_emu_regs</span><span class="params">(<span class="keyword">rtlreg_t</span> *r)</span></span>;   <span class="comment">// 从DUT顶层模块读取相关寄存器</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span>:</span><br><span class="line">  <span class="comment">// Emulator的构造函数</span></span><br><span class="line">  Emulator(<span class="keyword">int</span> argc, <span class="keyword">const</span> <span class="keyword">char</span> *argv[]);</span><br><span class="line">  <span class="comment">// n个周期的复位</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">reset_ncycles</span><span class="params">(<span class="keyword">size_t</span> cycles)</span></span>;</span><br><span class="line">  <span class="comment">// 步进单个周期</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">single_cycle</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="comment">// 执行n个周期</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">execute_cycles</span><span class="params">(<span class="keyword">uint64_t</span> n)</span></span>;</span><br><span class="line">  <span class="comment">// 测试Cache的函数</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">cache_test</span><span class="params">(<span class="keyword">uint64_t</span> n)</span></span>;</span><br><span class="line">  <span class="comment">// 执行，同时进行difftest</span></span><br><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">execute</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="comment">// 返回当前的周期数，用于Verilog的$time任务</span></span><br><span class="line">  <span class="function"><span class="keyword">uint64_t</span> <span class="title">get_cycles</span><span class="params">()</span></span>;</span><br><span class="line">  <span class="comment">// 返回最大的周期数，是通过构造函数设置的，防止卡死</span></span><br><span class="line">  <span class="function"><span class="keyword">uint64_t</span> <span class="title">get_max_cycles</span><span class="params">()</span></span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="read-emu-regs"><a href="#read-emu-regs" class="headerlink" title="read_emu_regs"></a><code>read_emu_regs</code></h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">read_emu_regs</span><span class="params">(<span class="keyword">rtlreg_t</span> *r)</span> </span>&#123;   <span class="comment">// 从DUT顶层模块读取相关寄存器</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> macro(x) r[x] = dut_ptr-&gt;io_difftest_r_##x</span></span><br><span class="line">    macro(<span class="number">0</span>); macro(<span class="number">1</span>); macro(<span class="number">2</span>); macro(<span class="number">3</span>); macro(<span class="number">4</span>); macro(<span class="number">5</span>); macro(<span class="number">6</span>); macro(<span class="number">7</span>);</span><br><span class="line">    macro(<span class="number">8</span>); macro(<span class="number">9</span>); macro(<span class="number">10</span>); macro(<span class="number">11</span>); macro(<span class="number">12</span>); macro(<span class="number">13</span>); macro(<span class="number">14</span>); macro(<span class="number">15</span>);</span><br><span class="line">    macro(<span class="number">16</span>); macro(<span class="number">17</span>); macro(<span class="number">18</span>); macro(<span class="number">19</span>); macro(<span class="number">20</span>); macro(<span class="number">21</span>); macro(<span class="number">22</span>); macro(<span class="number">23</span>);</span><br><span class="line">    macro(<span class="number">24</span>); macro(<span class="number">25</span>); macro(<span class="number">26</span>); macro(<span class="number">27</span>); macro(<span class="number">28</span>); macro(<span class="number">29</span>); macro(<span class="number">30</span>); macro(<span class="number">31</span>);</span><br><span class="line">    r[DIFFTEST_THIS_PC] = dut_ptr-&gt;io_difftest_thisPC;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifndef</span> __RV32__                    <span class="comment">// 读取CSR寄存器，我们在顶层编译选项中定义的是RV64</span></span></span><br><span class="line">    r[DIFFTEST_MSTATUS] = dut_ptr-&gt;io_difftest_mstatus;</span><br><span class="line">    r[DIFFTEST_SSTATUS] = dut_ptr-&gt;io_difftest_sstatus;</span><br><span class="line">    r[DIFFTEST_MEPC   ] = dut_ptr-&gt;io_difftest_mepc;</span><br><span class="line">    r[DIFFTEST_SEPC   ] = dut_ptr-&gt;io_difftest_sepc;</span><br><span class="line">    r[DIFFTEST_MCAUSE ] = dut_ptr-&gt;io_difftest_mcause;</span><br><span class="line">    r[DIFFTEST_SCAUSE ] = dut_ptr-&gt;io_difftest_scause;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>将宏定义展开之后，我们看到，这个函数其实是依次将相关的寄存器dump出来，按顺序放入了一个<code>rtlreg_t</code>类型的变量中。（事实上，<code>rtlreg_t</code>变量也就是<code>uint64</code>的数组。如果是RV32，那么就是<code>uint32</code>，这个根据宏定义来开关，而宏定义是在编译的时候，通过编译选项指定的，详见Makefile）。</p>
+<p>其中，剩下的例如<code>DIFFTEST_THIS_PC</code>等下标，在<code>difftest.h</code>中定义如下，PC作为32号，其余以此类推：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> &#123;</span><br><span class="line">  DIFFTEST_THIS_PC = <span class="number">32</span>,</span><br><span class="line">#ifndef __RV32__</span><br><span class="line">  DIFFTEST_MSTATUS,</span><br><span class="line">  DIFFTEST_MCAUSE,</span><br><span class="line">  DIFFTEST_MEPC,</span><br><span class="line">  DIFFTEST_SSTATUS,</span><br><span class="line">  DIFFTEST_SCAUSE,</span><br><span class="line">  DIFFTEST_SEPC,</span><br><span class="line">#endif</span><br><span class="line">  DIFFTEST_NR_REG</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h4 id="初始化-构造函数"><a href="#初始化-构造函数" class="headerlink" title="初始化 - 构造函数"></a>初始化 - 构造函数</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">   <span class="keyword">auto</span> args = parse_args(argc, argv);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// srand</span></span><br><span class="line">   srand(seed);</span><br><span class="line">   srand48(seed);</span><br><span class="line"><span class="comment">// 随机复位</span></span><br><span class="line">   Verilated::randReset(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 设置日志的起始时间和日志级别</span></span><br><span class="line">   dut_ptr-&gt;io_logCtrl_log_begin = log_begin;</span><br><span class="line">   dut_ptr-&gt;io_logCtrl_log_end = log_end;</span><br><span class="line">   dut_ptr-&gt;io_logCtrl_log_level = log_level;</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 使用镜像来初始化ram</span></span><br><span class="line">   <span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">init_ram</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span> *img)</span></span>;</span><br><span class="line">   init_ram(image);</span><br><span class="line"></span><br><span class="line">   <span class="comment">// 初始化外部设备</span></span><br><span class="line">   <span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">init_device</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">   init_device();</span><br><span class="line"></span><br><span class="line">   <span class="comment">// init core</span></span><br><span class="line">   reset_ncycles(<span class="number">10</span>);</span><br></pre></td></tr></table></figure>
+
+<h4 id="reset-ncycles-重置n个周期"><a href="#reset-ncycles-重置n个周期" class="headerlink" title="reset_ncycles - 重置n个周期"></a><code>reset_ncycles</code> - 重置n个周期</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">for(int i &#x3D; 0; i &lt; cycles; i++) &#123; &#x2F;&#x2F; 重置n个周期</span><br><span class="line">  dut_ptr-&gt;reset &#x3D; 1;</span><br><span class="line">  dut_ptr-&gt;clock &#x3D; 0;</span><br><span class="line">  dut_ptr-&gt;eval();</span><br><span class="line">  dut_ptr-&gt;clock &#x3D; 1;</span><br><span class="line">  dut_ptr-&gt;eval();</span><br><span class="line">  dut_ptr-&gt;reset &#x3D; 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="single-cycle-前进一个时钟周期（单步）"><a href="#single-cycle-前进一个时钟周期（单步）" class="headerlink" title="single_cycle() - 前进一个时钟周期（单步）"></a><code>single_cycle()</code> - 前进一个时钟周期（单步）</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">    dut_ptr-&gt;clock = <span class="number">0</span>;</span><br><span class="line">    dut_ptr-&gt;eval();</span><br><span class="line"></span><br><span class="line">    dut_ptr-&gt;clock = <span class="number">1</span>;</span><br><span class="line">    dut_ptr-&gt;eval();</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> VM_TRACE</span></span><br><span class="line">    tfp-&gt;dump(cycles);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    cycles ++;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>此处使用了Verilator手册中提到的<code>eval()</code>。</p>
+</li>
+<li><p>当设置了时钟下降沿之后，调用<code>eval()</code>计算组合逻辑，设置了上升沿之后，调用<code>eval()</code>更新时序逻辑。</p>
+</li>
+<li><p>这里维护的<code>cycles</code>变量是为了给Verilog的<code>$time</code>任务使用，Verilator规定这个需要由用户维护。</p>
+</li>
+</ul>
+<h4 id="execute-cycles-最核心的部分"><a href="#execute-cycles-最核心的部分" class="headerlink" title="execute_cycles - 最核心的部分"></a><code>execute_cycles</code> - 最核心的部分</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br></pre></td><td class="code"><pre><span class="line">  <span class="function"><span class="keyword">void</span> <span class="title">execute_cycles</span><span class="params">(<span class="keyword">uint64_t</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">extern</span> <span class="keyword">bool</span> <span class="title">is_finish</span><span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">poll_event</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">extern</span> <span class="keyword">uint32_t</span> <span class="title">uptime</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">set_abort</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br><span class="line">    <span class="keyword">uint32_t</span> lasttime = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">uint64_t</span> lastcommit = n;</span><br><span class="line">    <span class="keyword">int</span> hascommit = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> stuck_limit = <span class="number">2000</span>;            <span class="comment">// 超过2000周期没有指令提交，可能会是卡住了</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> VM_TRACE</span></span><br><span class="line">    Verilated::traceEverOn(<span class="literal">true</span>);    <span class="comment">// Verilator must compute traced signals</span></span><br><span class="line">    VL_PRINTF(<span class="string">&quot;Enabling waves...\n&quot;</span>);</span><br><span class="line">    tfp = <span class="keyword">new</span> VerilatedVcdC;</span><br><span class="line">    dut_ptr-&gt;trace(tfp, <span class="number">99</span>);    <span class="comment">// Trace 99 levels of hierarchy</span></span><br><span class="line">    tfp-&gt;open(<span class="string">&quot;vlt_dump.vcd&quot;</span>);    <span class="comment">// Open the dump file</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (!is_finish() &amp;&amp; n &gt; <span class="number">0</span>) &#123;    <span class="comment">// 主执行循环</span></span><br><span class="line">      single_cycle();</span><br><span class="line">      n --;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (lastcommit - n &gt; stuck_limit &amp;&amp; hascommit) &#123; <span class="comment">// 如果太久都没有指令提交，那说明有可能卡住了，强制停止</span></span><br><span class="line">        eprintf(<span class="string">&quot;No instruction commits for %d cycles, maybe get stuck\n&quot;</span></span><br><span class="line">            <span class="string">&quot;(please also check whether a fence.i instruction requires more than %d cycles to flush the icache)\n&quot;</span>,</span><br><span class="line">            stuck_limit, stuck_limit);</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> VM_TRACE</span></span><br><span class="line">        tfp-&gt;close();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">        set_abort();</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!hascommit &amp;&amp; (<span class="keyword">uint32_t</span>)dut_ptr-&gt;io_difftest_thisPC == <span class="number">0x80000000</span>) &#123;            <span class="comment">// 开始执行，初始PC=80000000</span></span><br><span class="line">        <span class="comment">// </span></span><br><span class="line">        hascommit = <span class="number">1</span>;</span><br><span class="line">        <span class="function"><span class="keyword">extern</span> <span class="keyword">void</span> <span class="title">init_difftest</span><span class="params">(<span class="keyword">rtlreg_t</span> *reg)</span></span>;</span><br><span class="line">        <span class="keyword">rtlreg_t</span> reg[DIFFTEST_NR_REG];</span><br><span class="line">        read_emu_regs(reg);</span><br><span class="line">        init_difftest(reg);</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// difftest</span></span><br><span class="line">      <span class="keyword">if</span> (dut_ptr-&gt;io_difftest_commit &amp;&amp; hascommit) &#123;        <span class="comment">// 有提交的时候，就需要进行差分测试了</span></span><br><span class="line">        <span class="comment">// 将里面的所有reg都提取出来</span></span><br><span class="line">        <span class="keyword">rtlreg_t</span> reg[DIFFTEST_NR_REG];                        </span><br><span class="line">        read_emu_regs(reg);</span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">extern</span> <span class="keyword">int</span> <span class="title">difftest_step</span><span class="params">(<span class="keyword">rtlreg_t</span> *reg_scala, <span class="keyword">uint32_t</span> this_inst,</span></span></span><br><span class="line"><span class="function"><span class="params">          <span class="keyword">int</span> isMMIO, <span class="keyword">int</span> isRVC, <span class="keyword">int</span> isRVC2, <span class="keyword">uint64_t</span> intrNO, <span class="keyword">int</span> priviledgeMode, <span class="keyword">int</span> isMultiCommit)</span></span>;        </span><br><span class="line">          <span class="comment">// 这里有一个参数，如果是双提交的话，需要检测两次</span></span><br><span class="line">        <span class="keyword">if</span> (dut_ptr-&gt;io_difftestCtrl_enable) &#123;</span><br><span class="line">          <span class="keyword">if</span> (difftest_step(reg, dut_ptr-&gt;io_difftest_thisINST,                <span class="comment">// &lt;----------- PAY ATTENTION TO THIS FUNCTION !!!</span></span><br><span class="line">              dut_ptr-&gt;io_difftest_isMMIO, dut_ptr-&gt;io_difftest_isRVC, dut_ptr-&gt;io_difftest_isRVC2,</span><br><span class="line">              dut_ptr-&gt;io_difftest_intrNO, dut_ptr-&gt;io_difftest_priviledgeMode, </span><br><span class="line">              dut_ptr-&gt;io_difftest_isMultiCommit)) &#123;</span><br><span class="line"><span class="meta">#<span class="meta-keyword">if</span> VM_TRACE</span></span><br><span class="line">            tfp-&gt;close();</span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">            set_abort();</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        lastcommit = n;</span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">uint32_t</span> t = uptime();</span><br><span class="line">      <span class="keyword">if</span> (t - lasttime &gt; <span class="number">100</span>) &#123;</span><br><span class="line">        poll_event();</span><br><span class="line">        lasttime = t;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p><code>difftest_step()</code></p>
+</li>
+<li><p><code>poll_event()</code></p>
+</li>
+<li><p>在开始仿真的时候，其实NEMU的状态是不确定的，需要在Reset之后，<strong>用我们编写的CPU的初始状态去校准NEMU的初始状态，他们一致之后，才会开始真正的仿真。</strong></p>
+</li>
+</ul>
+<h4 id="difftest-step-灵魂"><a href="#difftest-step-灵魂" class="headerlink" title="difftest_step() - 灵魂"></a><code>difftest_step()</code> - 灵魂</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">difftest_step</span><span class="params">(<span class="keyword">rtlreg_t</span> *reg_scala, <span class="keyword">uint32_t</span> this_inst,</span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="keyword">int</span> isMMIO, <span class="keyword">int</span> isRVC, <span class="keyword">int</span> isRVC2, <span class="keyword">uint64_t</span> intrNO, <span class="keyword">int</span> priviledgeMode, </span></span></span><br><span class="line"><span class="function"><span class="params">  <span class="keyword">int</span> isMultiCommit</span></span></span><br><span class="line"><span class="function"><span class="params">  )</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Note:</span></span><br><span class="line">  <span class="comment">// reg_scala[DIFFTEST_THIS_PC] is the first PC commited by CPU-WB</span></span><br><span class="line">  <span class="comment">// ref_r[DIFFTEST_THIS_PC] is NEMU&#x27;s next PC</span></span><br><span class="line">  <span class="comment">// To skip the compare of an instruction, replace NEMU reg value with CPU&#x27;s regfile value,</span></span><br><span class="line">  <span class="comment">// then set NEMU&#x27;s PC to next PC to be run</span></span><br><span class="line"></span><br><span class="line">  <span class="meta">#<span class="meta-keyword">define</span> DEBUG_RETIRE_TRACE_SIZE 16</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">rtlreg_t</span> ref_r[DIFFTEST_NR_REG];</span><br><span class="line">  <span class="keyword">rtlreg_t</span> this_pc = reg_scala[DIFFTEST_THIS_PC];</span><br><span class="line">  <span class="comment">// ref_difftest_getregs() will get the next pc,</span></span><br><span class="line">  <span class="comment">// therefore we must keep track this one</span></span><br><span class="line">  <span class="comment">// 需要注意的是：NEMU的PC是NEMU将要执行的下一条指令的PC</span></span><br><span class="line">  <span class="comment">// ref_difftest_getregs() 拿到的PC是NEMU计算出的下一个PC</span></span><br><span class="line">  <span class="comment">// 为了避免对比出错，我们需要用当前CPU执行的PC去覆盖读出的PC</span></span><br><span class="line">  <span class="comment">// 为了避免丢失原有的PC，我们需要将NEMU拿出来的下一个PC进行保存，保存到nemu_this_pc中</span></span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">rtlreg_t</span> nemu_this_pc = <span class="number">0x80000000</span>;</span><br><span class="line">  <span class="comment">// 这个循环队列，是用于记录之前的轨迹用的</span></span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">rtlreg_t</span> pc_retire_queue[DEBUG_RETIRE_TRACE_SIZE] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">uint32_t</span> inst_retire_queue[DEBUG_RETIRE_TRACE_SIZE] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">uint32_t</span> multi_commit_queue[DEBUG_RETIRE_TRACE_SIZE] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">uint32_t</span> skip_queue[DEBUG_RETIRE_TRACE_SIZE] = &#123;<span class="number">0</span>&#125;;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">int</span> pc_retire_pointer = <span class="number">7</span>;</span><br><span class="line">  <span class="keyword">static</span> <span class="keyword">int</span> need_copy_pc = <span class="number">0</span>;</span><br><span class="line">  <span class="meta">#<span class="meta-keyword">ifdef</span> NO_DIFFTEST</span></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  <span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line">  <span class="comment">// Copy PC是什么机制？</span></span><br><span class="line">  <span class="comment">// 这个代码块的作用，猜测是仅在双提交+MMIO的情况下有用</span></span><br><span class="line">  <span class="comment">// 通过在代码中添加assert断言，确定其确实是在双提交的时候才有用</span></span><br><span class="line">  <span class="comment">// 在双提交，且为MMIO+跳转的模式下，下一个PC不应当是PC+8，而应当是跳转的目标</span></span><br><span class="line">  <span class="comment">// 我们假设DUT计算的跳转的目标永远是正确的，直接将其拷贝给NEMU</span></span><br><span class="line">  <span class="keyword">if</span> (need_copy_pc) &#123;</span><br><span class="line">    need_copy_pc = <span class="number">0</span>;</span><br><span class="line">    ref_difftest_getregs(&amp;ref_r);</span><br><span class="line">    nemu_this_pc = reg_scala[DIFFTEST_THIS_PC];</span><br><span class="line">    ref_r[DIFFTEST_THIS_PC] = reg_scala[DIFFTEST_THIS_PC];</span><br><span class="line">    ref_difftest_setregs(ref_r);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (isMMIO) &#123;                </span><br><span class="line">    <span class="comment">// 对于MMIO，直接不对比，NEMU中的MMIO关系我们暂时无法干涉，所以直接跳过去，并且将执行完毕MMIO指令的CPU状态，拷贝到NEMU里面</span></span><br><span class="line">    <span class="comment">// printf(&quot;diff pc: %x isRVC %x\n&quot;, this_pc, isRVC);</span></span><br><span class="line">    <span class="comment">// MMIO accessing should not be a branch or jump, just +2/+4 to get the next pc</span></span><br><span class="line">    <span class="keyword">int</span> pc_skip = <span class="number">0</span>;</span><br><span class="line">    <span class="comment">// 我们为什么很肯定地能认为NEMU的下一个PC是PC+4呢？</span></span><br><span class="line">    <span class="comment">// 在单提交的情况下，MMIO相关的不可能是跳转指令，所以PC+4一定是下一个PC</span></span><br><span class="line">    <span class="comment">// 所以直接将当前DUT的状态复制给NEMU，并且将NEMU的PC+4</span></span><br><span class="line">    <span class="comment">// 双提交的情况下，一定会是PC+8吗？这里需要多加考虑。</span></span><br><span class="line">    pc_skip += isRVC ? <span class="number">2</span> : <span class="number">4</span>;</span><br><span class="line">    pc_skip += isMultiCommit ? (isRVC2 ? <span class="number">2</span> : <span class="number">4</span>) : <span class="number">0</span>;</span><br><span class="line">    reg_scala[DIFFTEST_THIS_PC] += pc_skip;</span><br><span class="line">    nemu_this_pc += pc_skip;</span><br><span class="line">    <span class="comment">// to skip the checking of an instruction, just copy the reg state to reference design</span></span><br><span class="line">    ref_difftest_setregs(reg_scala);        <span class="comment">// 把状态拷贝到里面去</span></span><br><span class="line">    <span class="comment">// 设置相关的队列</span></span><br><span class="line">    pc_retire_pointer = (pc_retire_pointer+<span class="number">1</span>) % DEBUG_RETIRE_TRACE_SIZE;</span><br><span class="line">    pc_retire_queue[pc_retire_pointer] = this_pc;</span><br><span class="line">    inst_retire_queue[pc_retire_pointer] = this_inst;</span><br><span class="line">    multi_commit_queue[pc_retire_pointer] = isMultiCommit;</span><br><span class="line">    skip_queue[pc_retire_pointer] = isMMIO;</span><br><span class="line">    <span class="comment">// 标记下一次需要覆盖PC（仅针对MMIO+跳转的双提交情形）</span></span><br><span class="line">    need_copy_pc = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;                                                                                                                        <span class="comment">// NEMU并不执行，直接return</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (intrNO) &#123;                                                                <span class="comment">// 如果产生了中断或者异常，则NEMU也需要获知相关的信息</span></span><br><span class="line">    ref_difftest_raise_intr(intrNO);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    ref_difftest_exec(<span class="number">1</span>);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isMultiCommit) &#123;    </span><br><span class="line">    ref_difftest_exec(<span class="number">1</span>);</span><br><span class="line">    <span class="comment">// 如果是多提交，需要再运行一步</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ref_difftest_getregs(&amp;ref_r);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">rtlreg_t</span> next_pc = ref_r[<span class="number">32</span>];</span><br><span class="line">  pc_retire_pointer = (pc_retire_pointer+<span class="number">1</span>) % DEBUG_RETIRE_TRACE_SIZE;</span><br><span class="line">  pc_retire_queue[pc_retire_pointer] = this_pc;</span><br><span class="line">  inst_retire_queue[pc_retire_pointer] = this_inst;</span><br><span class="line">  multi_commit_queue[pc_retire_pointer] = isMultiCommit;</span><br><span class="line">  skip_queue[pc_retire_pointer] = isMMIO;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">int</span> isCSR = ((this_inst &amp; <span class="number">0x7f</span>) ==  <span class="number">0x73</span>);</span><br><span class="line">  <span class="keyword">int</span> isCSRMip = ((this_inst &gt;&gt; <span class="number">20</span>) == <span class="number">0x344</span>) &amp;&amp; isCSR;</span><br><span class="line">  <span class="keyword">if</span> (isCSRMip) &#123;</span><br><span class="line">    <span class="comment">// We can not handle NEMU.mip.mtip since it is driven by CLINT,</span></span><br><span class="line">    <span class="comment">// which is not accessed in NEMU due to MMIO.</span></span><br><span class="line">   <span class="comment">// Just sync the state of NEMU from NutCore.</span></span><br><span class="line">    reg_scala[DIFFTEST_THIS_PC] = next_pc;</span><br><span class="line">    nemu_this_pc = next_pc;</span><br><span class="line">    ref_difftest_setregs(reg_scala);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// replace with &quot;this pc&quot; for checking</span></span><br><span class="line">  <span class="comment">// 同步NEMU的PC</span></span><br><span class="line">  ref_r[DIFFTEST_THIS_PC] = nemu_this_pc;</span><br><span class="line">  <span class="comment">// 保存下一个PC</span></span><br><span class="line">  nemu_this_pc = next_pc;</span><br><span class="line"></span><br><span class="line">  ref_r[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    </span><br><span class="line">  <span class="comment">// 检查上面获得的结果，如果有误，打印出最近DEBUG_RETIRE_TRACE_SIZE条</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">memcmp</span>(reg_scala, ref_r, <span class="keyword">sizeof</span>(ref_r)) != <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n==============Retire Trace==============\n&quot;</span>);</span><br><span class="line">    <span class="keyword">int</span> j;</span><br><span class="line">    <span class="keyword">for</span>(j = <span class="number">0</span>; j &lt; DEBUG_RETIRE_TRACE_SIZE; j++)&#123;</span><br><span class="line">      <span class="built_in">printf</span>(<span class="string">&quot;retire trace [%x]: pc %010lx inst %08x %s %s %s\n&quot;</span>, j, </span><br><span class="line">        pc_retire_queue[j], </span><br><span class="line">        inst_retire_queue[j], </span><br><span class="line">        (multi_commit_queue[j])?<span class="string">&quot;MC&quot;</span>:<span class="string">&quot;  &quot;</span>, </span><br><span class="line">        (skip_queue[j])?<span class="string">&quot;SKIP&quot;</span>:<span class="string">&quot;    &quot;</span>, </span><br><span class="line">        (j==pc_retire_pointer)?<span class="string">&quot;&lt;--&quot;</span>:<span class="string">&quot;&quot;</span></span><br><span class="line">      );</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n==============  Reg Diff  ==============\n&quot;</span>);</span><br><span class="line">    ref_isa_reg_display();</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;priviledgeMode = %d\n&quot;</span>, priviledgeMode);</span><br><span class="line">    <span class="built_in">puts</span>(<span class="string">&quot;&quot;</span>);</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span> (i = <span class="number">0</span>; i &lt; DIFFTEST_NR_REG; i ++) &#123;</span><br><span class="line">      <span class="keyword">if</span> (reg_scala[i] != ref_r[i]) &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%s different at pc = 0x%010lx, right= 0x%016lx, wrong = 0x%016lx\n&quot;</span>,</span><br><span class="line">            reg_name[i], this_pc, ref_r[i], reg_scala[i]);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><strong>需要注意的有以下几个逻辑：</strong></p>
+<ul>
+<li>NEMU中的PC寄存器，指向的是<strong>下一个</strong>将要执行的指令的PC</li>
+<li>进入<code>difftest_step()</code>函数时，NEMU的状态比DUT的状态<strong>滞后</strong>一条指令，但是<strong>NEMU的PC和DUT是相同的</strong></li>
+<li>在NEMU单步执行一个周期之后，NEMU的通用寄存器和控制寄存器应当和DUT相同，但是NEMU的PC较DUT超前了一条指令。</li>
+</ul>
+<hr>
+<ul>
+<li>最重要的是需要理解<strong>PC跳过的逻辑</strong>，具体内容在代码中有详尽的注释。</li>
+<li>对比一般流程如下：<ul>
+<li>CPU提交一条指令</li>
+<li>调用<code>difftest_step()</code></li>
+<li>保存NEMU的PC(nemu_this_pc)</li>
+<li>NEMU单步执行</li>
+<li>对比</li>
+</ul>
+</li>
+<li>如果是有需要跳过的指令<ul>
+<li>CPU提交一条指令</li>
+<li>调用<code>difftest_step()</code></li>
+<li>拷贝CPU的状态给NEMU</li>
+<li>更新NEMU的PC</li>
+<li>返回</li>
+</ul>
+</li>
+</ul>
+<h5 id="need-copy-pc到底有啥用？"><a href="#need-copy-pc到底有啥用？" class="headerlink" title="need_copy_pc到底有啥用？"></a><code>need_copy_pc</code>到底有啥用？</h5><p>笔者在阅读源代码时，一直不理解这个<code>need_copy_pc</code>标志有什么用。</p>
+<p><code>need_copy_pc</code>标志仅在<code>MMIO</code>这个分支内会被设置。</p>
+<p>某天突然想到，之前实现的乱序处理器中，MMIO和跳转指令可能会同时提交，如果跳转指令发生了跳转，那么接下来，不可能会在PC+8的地方继续取指。那么在这种情况下，在<code>MMIO</code>这个分支中为NEMU设置的PC就不对了！</p>
+<p>因为CPU在提交完MMIO和跳转指令这两条指令之后，接下来的PC不再是PC+8，而是会跳到目标地址，此时，<code>need_copy_pc</code>就派上用场了。根据作者的注释，在这种情况下，认为CPU计算的目标地址是正确的。</p>
+<blockquote>
+<p>笔者认为，此处的对比似乎不是那么严谨，如果需要跳过指令，并且双提交的情况，一个改进的措施是去除<code>need_copy_pc</code>这个标志，转而在CPU暴露的接口中指明跳转指令所在的PC，进而让NEMU也去执行对应的跳转指令，这样能够将测试覆盖的更加全面。</p>
+<p>并且如果DUT为顺序标量处理器，是否可以使用宏来关闭这个<code>need_copy_pc</code>机制？因为在顺序标量的核中，这个选项确实是多余的，但是每次碰到MMIO，都会去执行这个分支，会不会造成效率的下降？</p>
+</blockquote>
+<h6 id="猜测与验证"><a href="#猜测与验证" class="headerlink" title="猜测与验证"></a>猜测与验证</h6><p>猜测：MMIO和跳转双提交的时候，会进入到这个条件之中，因为NEMU的PC需要校正。</p>
+<p>为了验证自己的想法，笔者在关键部分添加了断言：</p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200901004921682.png"></p>
+<ul>
+<li><p>通过在此处添加断言，发现<code>need_copy_pc</code>这个条件似乎是多余的，那么事实是这样吗？</p>
+</li>
+<li><p>虽然每一次进入这个分支的时候，都复制了PC给NEMU，但是这个复制似乎是“多余”的，因为每次<code>assert</code>中的条件都成立。</p>
+</li>
+<li><p>在后面添加断言语句，断言是否有双提交，发现确实没有双提交</p>
+</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200901004321667.png"></p>
+<hr>
+<p>进一步地，修改Nutshell的配置，配置为顺序双发射和乱序多发射。</p>
+<ul>
+<li>在顺序双发射的核中，也不存在MMIO与跳转指令同时提交的情况，唯有在乱序核中会有这种情况，所以当将参数调到如下情形时，断言才有不成立的可能。</li>
+</ul>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200901010424899.png"></p>
+<p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200901010449629.png" alt="image-20200901010449629"></p>
+<hr>
+<p><strong>结论：<code>need_copy_pc</code>仅在双提交，并且双提交为跳转指令+MMIO时才起作用。</strong></p>
+<h3 id="device-cpp-ram-cpp-sdcard-cpp-uart-cpp-vga-cpp等-DPI-C接口"><a href="#device-cpp-ram-cpp-sdcard-cpp-uart-cpp-vga-cpp等-DPI-C接口" class="headerlink" title="device.cpp, ram.cpp, sdcard.cpp, uart.cpp, vga.cpp等 - DPI-C接口"></a><code>device.cpp, ram.cpp, sdcard.cpp, uart.cpp, vga.cpp等</code> - DPI-C接口</h3><p>Nutshell的仿真事实上也接近于<strong>全系统仿真</strong>，也就是说不仅仅仿真CPU核心，还需要同步仿真SoC上面的外设，例如内存、I/O设备。因此，Nutshell的源代码中提供了相应的C++编写的仿真模型。</p>
+<p>一个很好的例子是串口模型。使用Verilog编写串口仿真模型，往往会比较困难，并且在命令行下难以与用户进行交互。而Verilog提供了DPI-C接口，可以在Verilog中调用编写好的C语言函数。</p>
+<p>在<code>src/main/scala/device</code>中，是Nutshell提供的AXI外设模型，我们以串口模型为例：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">UARTGetc</span> <span class="keyword">extends</span> <span class="title">BlackBox</span> <span class="keyword">with</span> <span class="title">HasBlackBoxInline</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> clk = <span class="type">Input</span>(<span class="type">Clock</span>())</span><br><span class="line">    <span class="keyword">val</span> getc = <span class="type">Input</span>(<span class="type">Bool</span>())</span><br><span class="line">    <span class="keyword">val</span> ch = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  setInline(<span class="string">&quot;UARTGetc.v&quot;</span>,</span><br><span class="line">    <span class="string">s&quot;&quot;</span><span class="string">&quot;</span></span><br><span class="line"><span class="string">      |import &quot;</span><span class="type">DPI</span>-<span class="type">C</span><span class="string">&quot; function void uart_getc(output byte ch);</span></span><br><span class="line"><span class="string">      |</span></span><br><span class="line"><span class="string">      |module UARTGetc (</span></span><br><span class="line"><span class="string">      |  input clk,</span></span><br><span class="line"><span class="string">      |  input getc,</span></span><br><span class="line"><span class="string">      |  output reg [7:0] ch</span></span><br><span class="line"><span class="string">      |);</span></span><br><span class="line"><span class="string">      |</span></span><br><span class="line"><span class="string">      |  always@(posedge clk) begin</span></span><br><span class="line"><span class="string">      |    if (getc) uart_getc(ch);</span></span><br><span class="line"><span class="string">      |  end</span></span><br><span class="line"><span class="string">      |</span></span><br><span class="line"><span class="string">      |endmodule</span></span><br><span class="line"><span class="string">     &quot;</span><span class="string">&quot;&quot;</span>.stripMargin)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到的是，在这个<code>UARTGetc</code>模块中，关联了外部的<code>uart_getc</code>函数，这个函数在控制台中能够接收用户输入，将输入存放在缓冲区中，当调用<code>uart_getc</code>函数的时候，能够返回缓冲区首部的字符，这里在Verilog中调用了C语言函数，能够直接将返回的字符传送给上层的硬件模块进行仿真。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AXI4UART</span> <span class="keyword">extends</span> <span class="title">AXI4SlaveModule</span>(<span class="params">new <span class="type">AXI4Lite</span></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> rxfifo = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line">  <span class="keyword">val</span> txfifo = <span class="type">Reg</span>(<span class="type">UInt</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line">  <span class="keyword">val</span> stat = <span class="type">RegInit</span>(<span class="number">1.</span><span class="type">U</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line">  <span class="keyword">val</span> ctrl = <span class="type">RegInit</span>(<span class="number">0.</span><span class="type">U</span>(<span class="number">32.</span><span class="type">W</span>))</span><br><span class="line"></span><br><span class="line">  <span class="keyword">val</span> getcHelper = <span class="type">Module</span>(<span class="keyword">new</span> <span class="type">UARTGetc</span>)</span><br><span class="line">  getcHelper.io.clk := clock</span><br><span class="line">  getcHelper.io.getc := (raddr(<span class="number">3</span>,<span class="number">0</span>) === <span class="number">0.</span><span class="type">U</span> &amp;&amp; ren)</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">putc</span></span>(c: <span class="type">UInt</span>): <span class="type">UInt</span> = &#123; printf(<span class="string">&quot;%c&quot;</span>, c(<span class="number">7</span>,<span class="number">0</span>)); c &#125;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">getc</span> </span>= getcHelper.io.ch</span><br></pre></td></tr></table></figure>
+
+<p>那么串口输出就比较简单了，直接调用<code>scala</code>的输出函数就可以实现。</p>
+<p>有关于DPI-C以及相关仿真模型的细节，由于时间所限，此处不一一描述。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%B5%8B%E8%AF%95/" rel="tag"># 测试</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/30/Verilator_note/" rel="prev" title="Verilator仿真器入门">
+      <i class="fa fa-chevron-left"></i> Verilator仿真器入门
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+        </div>
+        
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胡博涵</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.0.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script class="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"hubohan.space","root":"/","scheme":"Pisces","version":"8.0.0-rc.5","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12},"copycode":false,"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"motion":{"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"prism":false};
+  </script>
+
+  <meta name="description" content="我们在前面的代码中，经常使用到for循环，显然过于冗长，并且和函数式编程的宗旨相悖。 在本节中，我们以之前实现的FIR滤波器为例，通过Scala的特性进行重构。 回顾：FIR滤波器 $$ y[n] &#x3D; b_0x[n]+b_1x[n-1]+b_2x[n-2]+\cdots$$ 之前的实现12345678910111213141516171819202122232425262728class MyMa">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chisel学习笔记（十）：高阶函数">
+<meta property="og:url" content="http://hubohan.space/2020/08/25/Chisel_Note_10/index.html">
+<meta property="og:site_name" content="Hu&#39;s Blog">
+<meta property="og:description" content="我们在前面的代码中，经常使用到for循环，显然过于冗长，并且和函数式编程的宗旨相悖。 在本节中，我们以之前实现的FIR滤波器为例，通过Scala的特性进行重构。 回顾：FIR滤波器 $$ y[n] &#x3D; b_0x[n]+b_1x[n-1]+b_2x[n-2]+\cdots$$ 之前的实现12345678910111213141516171819202122232425262728class MyMa">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200825135235362.png">
+<meta property="article:published_time" content="2020-08-25T09:00:00.000Z">
+<meta property="article:modified_time" content="2020-12-07T03:08:44.471Z">
+<meta property="article:author" content="胡博涵">
+<meta property="article:tag" content="Chisel">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200825135235362.png">
+
+<link rel="canonical" href="http://hubohan.space/2020/08/25/Chisel_Note_10/">
+
+
+<script class="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Chisel学习笔记（十）：高阶函数 | Hu's Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  body { margin-top: 2rem; }
+
+  .use-motion .menu-item,
+  .use-motion .sidebar,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header {
+    visibility: visible;
+  }
+
+  .use-motion .header,
+  .use-motion .site-brand-container .toggle,
+  .use-motion .footer { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle,
+  .use-motion .custom-logo-image {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line {
+    transform: scaleX(1);
+  }
+
+  .search-pop-overlay, .sidebar-nav { display: none; }
+  .sidebar-panel { display: block; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container">
+    <div class="headband"></div>
+
+    <main class="main">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <h1 class="site-title">Hu's Blog</h1>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">Who's blog?</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <section class="post-toc-wrap sidebar-panel">
+          <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9E%E9%A1%BE%EF%BC%9AFIR%E6%BB%A4%E6%B3%A2%E5%99%A8"><span class="nav-number">1.</span> <span class="nav-text">回顾：FIR滤波器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B9%8B%E5%89%8D%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.1.</span> <span class="nav-text">之前的实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9B%B4%E7%AE%80%E5%8D%95%E7%9A%84%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.2.</span> <span class="nav-text">更简单的实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E4%BD%9C%E4%B8%BA%E5%8F%82%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">函数作为参数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A3%B0%E6%98%8E%E5%8C%BF%E5%90%8D%E5%87%BD%E6%95%B0%E7%9A%84%E4%B8%8D%E5%90%8C%E6%96%B9%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">声明匿名函数的不同方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9C%A8Scala%E4%B8%AD%E7%9A%84%E5%AE%9E%E8%B7%B5"><span class="nav-number">2.2.</span> <span class="nav-text">在Scala中的实践</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Map%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.1.</span> <span class="nav-text">Map函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#zipWithIndex%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.2.</span> <span class="nav-text">zipWithIndex函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Reduce%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.3.</span> <span class="nav-text">Reduce函数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Fold%E5%87%BD%E6%95%B0"><span class="nav-number">2.2.4.</span> <span class="nav-text">Fold函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0%E5%BA%94%E7%94%A8%E5%AE%9E%E4%BE%8B%EF%BC%9A%E4%BB%B2%E8%A3%81%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">高阶函数应用实例：仲裁器</span></a></li></ol></div>
+      </section>
+      <!--/noindex-->
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">胡博涵</p>
+  <div class="site-description" itemprop="description">CS Undergraduate at Harbin Institute of Technology, Shenzhen</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">15</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Bohan-Hu" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Bohan-Hu" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:hubohancser@gmail.com" title="E-Mail → mailto:hubohancser@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </section>
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </header>
+
+      
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div id="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+      <div class="main-inner">
+        
+
+        <div class="content post posts-expand">
+          
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hubohan.space/2020/08/25/Chisel_Note_10/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡博涵">
+      <meta itemprop="description" content="CS Undergraduate at Harbin Institute of Technology, Shenzhen">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Hu's Blog">
+    </span>
+
+    
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Chisel学习笔记（十）：高阶函数
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2020-08-25 17:00:00" itemprop="dateCreated datePublished" datetime="2020-08-25T17:00:00+08:00">2020-08-25</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-07 11:08:44" itemprop="dateModified" datetime="2020-12-07T11:08:44+08:00">2020-12-07</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+        <p>我们在前面的代码中，经常使用到<code>for</code>循环，显然过于冗长，并且和函数式编程的宗旨相悖。</p>
+<p>在本节中，我们以之前实现的FIR滤波器为例，通过Scala的特性进行重构。</p>
+<h2 id="回顾：FIR滤波器"><a href="#回顾：FIR滤波器" class="headerlink" title="回顾：FIR滤波器"></a>回顾：FIR滤波器</h2><p><img src="https://cdn.jsdelivr.net/gh/Bohan-Hu/img/images/image-20200825135235362.png" alt="image-20200825135235362"></p>
+<p>$$ y[n] = b_0x[n]+b_1x[n-1]+b_2x[n-2]+\cdots$$</p>
+<h3 id="之前的实现"><a href="#之前的实现" class="headerlink" title="之前的实现"></a>之前的实现</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyManyDynamicElementVecFir</span>(<span class="params">length: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> consts = <span class="type">Input</span>(<span class="type">Vec</span>(length, <span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)))</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Reference solution</span></span><br><span class="line">  <span class="keyword">val</span> regs = <span class="type">RegInit</span>(<span class="type">VecInit</span>(<span class="type">Seq</span>.fill(length - <span class="number">1</span>)(<span class="number">0.</span><span class="type">U</span>(<span class="number">8.</span><span class="type">W</span>))))</span><br><span class="line">  <span class="keyword">for</span>(i &lt;- <span class="number">0</span> until length - <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span>(i == <span class="number">0</span>) regs(i) := io.in</span><br><span class="line">      <span class="keyword">else</span>       regs(i) := regs(i - <span class="number">1</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">val</span> muls = <span class="type">Wire</span>(<span class="type">Vec</span>(length, <span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)))</span><br><span class="line">  <span class="keyword">for</span>(i &lt;- <span class="number">0</span> until length) &#123;</span><br><span class="line">      <span class="keyword">if</span>(i == <span class="number">0</span>) muls(i) := io.in * io.consts(i)</span><br><span class="line">      <span class="keyword">else</span>       muls(i) := regs(i - <span class="number">1</span>) * io.consts(i)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">val</span> scan = <span class="type">Wire</span>(<span class="type">Vec</span>(length, <span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)))</span><br><span class="line">  <span class="keyword">for</span>(i &lt;- <span class="number">0</span> until length) &#123;</span><br><span class="line">      <span class="keyword">if</span>(i == <span class="number">0</span>) scan(i) := muls(i)</span><br><span class="line">      <span class="keyword">else</span> scan(i) := muls(i) + scan(i - <span class="number">1</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  io.out := scan(length - <span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>回顾我们的实现：</p>
+<ul>
+<li>对于每一个<code>regs(i)</code>，和其对应的<code>io.const</code>相乘，并且存储到<code>muls</code>向量中。</li>
+<li>对于每一个<code>muls(i)</code>，<code>scan(0) = muls(0)</code>, <code>scan(1) = scan(0) + muls(1) = muls(0) + muls(1)</code>……</li>
+<li>取出<code>scan</code>中的最后一个元素，并且赋值给<code>io.out</code></li>
+</ul>
+<p>事实上，我们可以使用一个更简单的方法实现。</p>
+<h3 id="更简单的实现"><a href="#更简单的实现" class="headerlink" title="更简单的实现"></a>更简单的实现</h3><p>前方高能。</p>
+<hr>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyManyDynamicElementVecFir</span>(<span class="params">length: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in = <span class="type">Input</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> out = <span class="type">Output</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">    <span class="keyword">val</span> consts = <span class="type">Input</span>(<span class="type">Vec</span>(length, <span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>)))</span><br><span class="line">  &#125;)</span><br><span class="line">  io.out := (taps zip io.consts).map &#123; <span class="keyword">case</span> (a, b) =&gt; a * b &#125;.reduce(_ + _)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 就这？就这？？？？？？你在逗我？？？？？？？？？？</p>
+</blockquote>
+<p>让我们来解析一下这个代码。</p>
+<ul>
+<li><p><code>(taps zip io.consts)</code> 的输入是两个List： <code>taps</code> 和 <code>io.consts</code>，这个函数最终返回的是一个列表，其中的元素是二元组，两个数组相同下标的元素被组合成一个二元组。最终，列表会长这样：<code>[(taps(0), io.consts(0)), (taps(1), io.consts(1)), ..., (taps(n), io.consts(n))]</code>。注意：在Scala中，由于对于仅有一个参数的方法，其调用可以省略<code>.</code>和<code>()</code>，所以这个等效于<code>(taps.zip(io.consts))</code>。</p>
+</li>
+<li><p><code>.map &#123; case (a, b) =&gt; a * b &#125;</code> 在列表中的每一个函数上面都应用了一个匿名函数，并返回如此操作之后的列表。这个匿名函数的输入是一个元组<code>(a,b)</code>，函数输出是<code>a*b</code>。最终，返回的列表是 <code>[taps(0) * io.consts(0), taps(1) * io.consts(1), ..., taps(n) * io.consts(n)]</code>。</p>
+</li>
+<li><p>最终, <code>.reduce(_ + _)</code> 也对列表进行了操作。这个函数拥有两个参数：</p>
+<ul>
+<li><p>当前的累加和</p>
+</li>
+<li><p>当前处理到的元素</p>
+<p>最终返回的结果应当是 <code>(((muls(0) + muls(1)) + muls(2)) + ...) + muls(n)</code>，最深层的括号是最先被计算的。这就是<code>reduce</code>模型。</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="函数作为参数"><a href="#函数作为参数" class="headerlink" title="函数作为参数"></a>函数作为参数</h2><p>在我们上面所见的<code>map</code>和<code>reduce</code>被称为<strong>高阶函数</strong>。为什么称之为高阶函数？因为他们输入的参数是<strong>函数</strong>。</p>
+<p>函数式编程的一个好处是，我们不必聚焦于控制相关的代码，而是可以专注于编写逻辑。</p>
+<h3 id="声明匿名函数的不同方法"><a href="#声明匿名函数的不同方法" class="headerlink" title="声明匿名函数的不同方法"></a>声明匿名函数的不同方法</h3><ul>
+<li>对于那些<strong>每个参数都仅仅被使用过一次</strong>的函数，可以使用下划线(<code>_</code>)来引用每一个参数。在上面的例子中，<code>reduce</code>的就是拥有两个参数，可以被写作是<code>_+_</code>，代表第一个参数加第二个参数</li>
+<li>也可以显式地声明那些输入参数，例如，上面的函数可以写成是<code>(a,b) =&gt; a + b</code>。将参数列表放在括号中，后接一个<code>=&gt;</code>，然后是函数体。</li>
+<li>当需要对元组进行解包的时候，需要使用<code>case</code>语句。<code>case (a,b) =&gt; a * b</code></li>
+</ul>
+<h3 id="在Scala中的实践"><a href="#在Scala中的实践" class="headerlink" title="在Scala中的实践"></a>在Scala中的实践</h3><h4 id="Map函数"><a href="#Map函数" class="headerlink" title="Map函数"></a>Map函数</h4><p><code>List[A].map</code>的定义是<code>map[B](f: (A)=&gt;B)):List[B]</code>。定义看起来略微有点复杂，我们先将<code>A</code>认为是<code>Int</code>（软件类型），<code>B</code>认为是<code>UInt</code>（硬件类型）。</p>
+<p>上面的声明可以看作是：<code>map</code>函数接收一个输入类型为<code>A</code>，返回类型为<code>B</code>的函数，并且返回一个元素类型为<code>B</code>的列表。</p>
+<h4 id="zipWithIndex函数"><a href="#zipWithIndex函数" class="headerlink" title="zipWithIndex函数"></a>zipWithIndex函数</h4><p><code>List.zipWithIndex</code>的定义是<code>zipWithIndex: List[(A, Int)]</code>。</p>
+<p><code>List(&quot;a&quot;, &quot;b&quot;, &quot;c&quot;, &quot;d&quot;).zipWithIndex</code>将返回<code>List((&quot;a&quot;, 0), (&quot;b&quot;, 1), (&quot;c&quot;, 2), (&quot;d&quot;, 3))</code>。</p>
+<h4 id="Reduce函数"><a href="#Reduce函数" class="headerlink" title="Reduce函数"></a>Reduce函数</h4><p><code>List[A].reduce</code>的定义是<code>reduce(op: (A, A) ⇒ A): A</code>。</p>
+<p>事实上，<code>A</code>只需要是子类就可以了。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">println(<span class="type">List</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>).reduce((a, b) =&gt; a + b))  <span class="comment">// returns the sum of all the elements</span></span><br><span class="line">println(<span class="type">List</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>).reduce(_ * _))  <span class="comment">// returns the product of all the elements</span></span><br><span class="line">println(<span class="type">List</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>).map(_ + <span class="number">1</span>).reduce(_ + _))  <span class="comment">// you can chain reduce onto the result of a map</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Fold函数"><a href="#Fold函数" class="headerlink" title="Fold函数"></a>Fold函数</h4><p><code>fold</code>函数和<code>reduce</code>函数非常类似，有一点不同的是，<code>fold</code>函数对于迭代具有初始值，可以从<code>fold</code>函数的定义中看出： <code>fold(z: A)(op: (A, A) ⇒ A): A</code></p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">println(<span class="type">List</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>).fold(<span class="number">0</span>)(_ + _))  <span class="comment">// equivalent to the sum using reduce</span></span><br><span class="line">println(<span class="type">List</span>(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>).fold(<span class="number">1</span>)(_ + _))  <span class="comment">// like above, but accumulation starts at 1</span></span><br><span class="line">println(<span class="type">List</span>().fold(<span class="number">1</span>)(_ + _))  <span class="comment">// unlike reduce, does not fail on an empty input</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="高阶函数应用实例：仲裁器"><a href="#高阶函数应用实例：仲裁器" class="headerlink" title="高阶函数应用实例：仲裁器"></a>高阶函数应用实例：仲裁器</h2><p>我们将构建一个仲裁器，拥有<code>n</code>个输入和1个输出，选择编号最小的有效输出。</p>
+<p>这个例子需要一定的时间消化。</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MyRoutingArbiter</span>(<span class="params">numChannels: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Module</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> io = <span class="type">IO</span>(<span class="keyword">new</span> <span class="type">Bundle</span> &#123;</span><br><span class="line">    <span class="keyword">val</span> in = <span class="type">Vec</span>(<span class="type">Flipped</span>(<span class="type">Decoupled</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))), numChannels)</span><br><span class="line">    <span class="keyword">val</span> out = <span class="type">Decoupled</span>(<span class="type">UInt</span>(<span class="number">8.</span><span class="type">W</span>))</span><br><span class="line">  &#125; )</span><br><span class="line"></span><br><span class="line">  io.out.valid := io.in.map(_.valid).reduce(_ || _)        <span class="comment">// 取出Valid位，并将所有的Valid或起来</span></span><br><span class="line">  <span class="keyword">val</span> channel = <span class="type">PriorityMux</span>(</span><br><span class="line">    io.in.map(_.valid).zipWithIndex.map &#123; <span class="keyword">case</span> (valid, index) =&gt; (valid, index.<span class="type">U</span>) &#125;</span><br><span class="line">  )</span><br><span class="line">  io.out.bits := io.in(channel).bits                    <span class="comment">// 将编码好的进行选择</span></span><br><span class="line">  io.in.map(_.ready).zipWithIndex.foreach &#123; <span class="keyword">case</span> (ready, index) =&gt;</span><br><span class="line">    ready := io.out.ready &amp;&amp; channel === index.<span class="type">U</span>        <span class="comment">// 被选中的就Ready</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>PriorityMux(List[Bool, Bits])</code>，按照Index从低到高，选中第一个有效的，其实是一个优先编码+多路选择。</p>
+<hr>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">io.out.valid := io.in.map(_.valid).reduce(_ || _)</span><br></pre></td></tr></table></figure>
+
+<p><code>io.in.map(_.valid)</code>将输入中所有的Valid取出，组成一个新的向量。</p>
+<p><code>.reduce(_ || _)</code>将向量中所有的Bit都或在一起。</p>
+<hr>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">io.in.map(_.valid).zipWithIndex.map &#123; <span class="keyword">case</span> (valid, index) =&gt; (valid, index.<span class="type">U</span>) &#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>io.in.map(_.valid).zipWithIndex</code>将每一项都和他的Index串联在一起。</p>
+<p><code>.map &#123; case (valid, index) =&gt; (valid, index.U) &#125;</code>将<code>index</code>转换为硬件信号，因为Mux的输出是硬件信号，同时<code>Vec</code>也需要硬件信号做索引。</p>
+<hr>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">io.in.map(_.ready).zipWithIndex.foreach &#123; <span class="keyword">case</span> (ready, index) =&gt;</span><br><span class="line">    ready := io.out.ready &amp;&amp; channel === index.<span class="type">U</span>        <span class="comment">// 被选中的就Ready</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p> 注意：此处虽然定义了新的函数，<code>case(ready, index) =&gt; </code>，但是传入的仍然是原来的硬件节点，也就是说，传入函数的硬件节点不会被重复的创建，相当于传递的是引用。</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Chisel/" rel="tag"># Chisel</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/08/25/Chisel_Note_9/" rel="prev" title="Chisel学习笔记（九）：容器">
+      <i class="fa fa-chevron-left"></i> Chisel学习笔记（九）：容器
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2020/08/25/Chisel_Note_11/" rel="next" title="Chisel学习笔记（十一）：函数式编程">
+      Chisel学习笔记（十一）：函数式编程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+        </div>
+        
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">胡博涵</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
